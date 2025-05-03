@@ -5,7 +5,8 @@
   "scripts": {
   "dev": "next dev",
   "build": "next build",
-  "deploy": "npm run build && rm -rf ../docs && mkdir ../docs && cp -r out/* ../docs/ && touch ../docs/.nojekyll"
+  "deploy": "npm run build && rm -rf ../docs && mkdir ../docs && cp -r out/* ../docs/ && touch ../docs/.nojekyll",
+  "start" : "next dev"
 },
   "dependencies": {
     "next": "15.3.1",
