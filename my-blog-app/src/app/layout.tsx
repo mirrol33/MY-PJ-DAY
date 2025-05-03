@@ -1,8 +1,9 @@
 // MY-PJ-DAY/my-blog-app/src/app/layout.tsx
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 
-import '@/scss/common.scss';
+
+import '../scss/common.scss';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
