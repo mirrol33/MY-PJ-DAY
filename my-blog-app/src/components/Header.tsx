@@ -1,3 +1,5 @@
+import '@/scss/layout.scss';
+
 export default function Header() {
     return (
       <header>

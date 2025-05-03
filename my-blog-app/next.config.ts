@@ -1,4 +1,3 @@
-// next.config.ts
 const isProd = process.env.NODE_ENV === 'production';
 
 const nextConfig = {
