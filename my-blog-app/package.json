@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
+  "dev": "next dev",
+  "start": "next dev & sleep 2 && open http://localhost:3000/MY-PJ-DAY/",
+  "build": "next build && next export",
+  "export": "rm -rf ../docs && mv out ../docs",
+  "lint": "next lint"
+},
   "dependencies": {
     "next": "15.3.1",
     "react": "^19.0.0",

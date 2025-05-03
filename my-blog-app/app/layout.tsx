@@ -1,8 +1,8 @@
-// app/layout.tsx
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+// layout.tsx
+import Header from './components/Header';
+import Footer from './components/Footer';
 
-import '../scss/layout.scss';
+import './scss/layout.scss';
 import { Metadata } from 'next';
 
 export const metadata : Metadata = {
