@@ -1,9 +1,9 @@
-import '@/scss/layout.scss';
+import '@/scss/header.scss';
 
 export default function Header() {
     return (
       <header>
-        <h1>My Blog</h1>
+        <h1>My Blog Logo</h1>
       </header>
     );
   }

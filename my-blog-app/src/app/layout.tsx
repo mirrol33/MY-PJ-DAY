@@ -2,6 +2,7 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
+import '@/scss/common.scss';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -17,3 +18,4 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+
