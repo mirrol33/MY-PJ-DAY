@@ -6,9 +6,11 @@
 
 // export default nextConfig;
 
-// next.config.js
-module.exports = {
+// next.config.ts
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
   output: 'export',
-  basePath: '',
-  assetPrefix: '',
 };
+
+export default nextConfig;
