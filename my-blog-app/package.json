@@ -7,8 +7,7 @@
   "build": "next build && rm -rf ../docs && mv out ../docs",
   "start": "next dev",
   "lint": "next lint"
-}
-,
+},
   "dependencies": {
     "next": "15.3.1",
     "react": "^19.0.0",
