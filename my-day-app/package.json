@@ -5,8 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "deploy": "npm run build && npx cpy ./out/**/* ../docs --parents && echo > ../docs/.nojekyll",
-    "start": "next dev"
+    "deploy": "npm run build && npx cpy ./out/**/* ../docs --parents && echo > ../docs/.nojekyll"
   },
   "dependencies": {
     "next": "15.3.1",
@@ -20,6 +19,7 @@
     "@types/react-dom": "^19",
     "cpy-cli": "^5.0.0",
     "cross-env": "^7.0.3",
+    "serve": "^14.2.4",
     "typescript": "^5"
   }
 }
