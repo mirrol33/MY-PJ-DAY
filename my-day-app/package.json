@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-  "dev": "next dev",
-  "build": "next build",
-  "deploy": "npm run build && rm -rf ../docs && mkdir ../docs && cp -r out/* ../docs/ && touch ../docs/.nojekyll",
-  "start" : "next dev"
-},
+    "dev": "next dev",
+    "build": "next build",
+    "deploy": "npm run build && npx cpy ./out/**/* ../docs --parents && echo > ../docs/.nojekyll",
+    "start": "next dev"
+  },
   "dependencies": {
     "next": "15.3.1",
     "react": "^19.0.0",
@@ -18,6 +18,8 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cpy-cli": "^5.0.0",
+    "cross-env": "^7.0.3",
     "typescript": "^5"
   }
 }

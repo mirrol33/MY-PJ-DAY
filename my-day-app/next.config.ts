@@ -1,11 +1,9 @@
 // MY-DAY-APP/my-day-app/
 // next.config.ts
-import type { NextConfig } from 'next';
-
-const nextConfig: NextConfig = {
+const nextConfig = {
   output: 'export',
-  basePath: '/my-day-app',
-  assetPrefix: '/my-day-app/',
+  basePath: '/MY-PJ-DAY',
+  assetPrefix: '/MY-PJ-DAY/',
 };
 
 export default nextConfig;
