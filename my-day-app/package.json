@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "start": "npx serve out --single --listen 3000 && start http://localhost:3000//MY-PJ-DAY/",
     "build": "next build",
     "deploy": "npm run build && npx cpy ./out/**/* ../docs --parents && echo > ../docs/.nojekyll"
   },
   "dependencies": {
+    "firebase": "^11.6.1",
     "next": "15.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
