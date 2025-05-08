@@ -6,10 +6,13 @@ import { Post } from '@/type/post';
 import { collection, getDocs, orderBy, query, Timestamp } from 'firebase/firestore';
 import { db } from '@/firebase/config';
 
+interface PostWithFormattedDate extends Omit<Post, 'createdAt'> {
+  createdAt: string; // 'createdAt'을 문자열로 변환하여 다룸
+}
 
 export default function Home() {
   // 게시글 상태 관리
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<PostWithFormattedDate[]>([]);
 
   useEffect(() => {
     // 게시글을 가져오는 비동기 함수
@@ -29,7 +32,7 @@ export default function Home() {
           const data = doc.data() as Post;
 
           // Firestore의 Timestamp 객체를 문자열로 변환
-          const formattedDate = data.createdAt.toString();
+          const formattedDate = (data.createdAt as Timestamp).toDate().toISOString();
 
           // 각 게시글의 제목과 작성일을 콘솔로 출력 (디버깅 용도)
           console.log(`📄 게시글: ${data.title} | 작성일: ${formattedDate}`);

@@ -56,12 +56,12 @@ export default function ReadPost() {
       <h1>{post.title}</h1>
       <p>{post.content}</p>
       <small>
-  {post.createdAt
-    ? // createdAt이 존재하면, 해당 값을 표시
-    `작성일: ${new Date(post.createdAt).toLocaleDateString()}`
-    : // createdAt이 없으면, 작성일을 불러올 수 없다는 메시지 표시
-      '작성일 정보를 불러올 수 없습니다.'}
-</small>
+        {post.createdAt
+          ? // createdAt이 존재하면, 해당 값을 표시
+          `작성일: ${(post.createdAt).toDate().toLocaleDateString()}`
+          : // createdAt이 없으면, 작성일을 불러올 수 없다는 메시지 표시
+            '작성일 정보를 불러올 수 없습니다.'}
+      </small>
     </main>
   );
 }
