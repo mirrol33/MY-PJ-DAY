@@ -1,27 +1,29 @@
 {
-  "name": "my-day-app",
+  "name": "my-day",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "start": "npx serve out --single --listen 3000 && start http://localhost:3000//MY-PJ-DAY/",
     "build": "next build",
-    "deploy": "npm run build && npx cpy ./out/**/* ../docs --parents && echo > ../docs/.nojekyll"
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
     "firebase": "^11.7.1",
-    "next": "15.3.1",
+    "next": "15.3.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "sass": "^1.87.0"
+    "react-firebase-hooks": "^5.1.1"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "cpy-cli": "^5.0.0",
-    "cross-env": "^7.0.3",
-    "serve": "^14.2.4",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.2",
+    "tailwindcss": "^4",
     "typescript": "^5"
   }
 }
