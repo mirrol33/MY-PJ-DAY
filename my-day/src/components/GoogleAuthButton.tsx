@@ -1,3 +1,4 @@
+// GoogleAuthButton.tsx
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
@@ -52,7 +53,7 @@ export default function GoogleAuthButton() {
     return (
       <button
         onClick={handleGoogleLogin}
-        className="px-4 py-2 bg-blue-600 text-white rounded"
+        className="px-4 py-2 bg-green-600 text-white rounded text-sm cursor-pointer hover:bg-green-800"
       >
         Google 계정으로 로그인
       </button>
@@ -70,7 +71,7 @@ export default function GoogleAuthButton() {
       <span className="text-white">{user.displayName}</span>
       <button
         onClick={handleLogout}
-        className="px-3 py-1 bg-gray-600 text-white rounded"
+        className="px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-500 cursor-pointer text-sm"
       >
         로그아웃
       </button>

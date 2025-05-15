@@ -35,21 +35,21 @@ export default function List() {
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto py-12 px-6">
       <h1 className="text-3xl font-bold mb-6 text-center">게시글 목록</h1>
 
       <div className="flex justify-end mb-6">
         {user ? (
           <Link
             href="/blog/write"
-            className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-800"
           >
             글쓰기
           </Link>
         ) : (
           <button
             disabled
-            className="inline-block bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed"
+            className="inline-block bg-gray-400 text-white px-4 py-2 rounded"
             title="로그인 후 글쓰기가 가능합니다"
           >
             글쓰기 (로그인 필요)
@@ -59,7 +59,7 @@ export default function List() {
 
       <ul className="space-y-6">
         {posts.map((post) => (
-          <li key={post.id} className="border p-4 rounded shadow-sm">
+          <li key={post.id} className="border-1 border-gray-300 p-4 rounded">
             <div className="flex items-center mb-3 gap-3">
               <img
                 src={post.author?.photoURL || "/default-avatar.png"}
@@ -70,15 +70,15 @@ export default function List() {
             </div>
 
             <h2 className="font-semibold text-lg">
-              {post.title.length > 30 ? `${post.title.slice(0, 10)}...` : post.title}
+              {post.title.length > 50 ? `${post.title.slice(0, 50)}...` : post.title}
             </h2>
             <p className="text-gray-600 mt-2">
-              {post.content.length > 100 ? `${post.content.slice(0, 40)}...` : post.content}
+              {post.content.length > 60 ? `${post.content.slice(0, 60)}...` : post.content}
             </p>
             <div className="mt-4">
               <Link
                 href={`/blog/read/${post.id}`}
-                className="inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                className="inline-block bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-600 text-sm"
               >
                 상세보기
               </Link>
