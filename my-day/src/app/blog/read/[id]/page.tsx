@@ -49,24 +49,45 @@ export default function ReadPostPage({ params }: PostProps) {
   if (!post) return <p>로딩 중...</p>;
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-4">
+    <div className="max-w-4xl mx-auto p-6 space-y-4">
       <h1 className="text-3xl font-bold">{post.title}</h1>
-      <p className="text-gray-700 whitespace-pre-line">{post.content}</p>
+      <div className="text-gray-700 whitespace-pre-line py-4">
+        <p>{post.content}</p>
+      </div>
+      <div className="flex items-center gap-3">
+        <img
+          src={post.author?.photoURL || "/default-avatar.png"}
+          alt="프로필"
+          className="w-10 h-10 rounded-full"
+        />
+        <span className="text-sm text-gray-700">
+          {post.author?.name || "익명"} ({post.author?.email})
+        </span>
+      </div>
 
       <div className="text-sm text-gray-500 mt-8">
-        <p>
-          작성자: {post.author?.name} ({post.author?.email})
-        </p>
         {post.createdAt && (
           <p>
             작성일:{" "}
-            {new Date(post.createdAt.seconds * 1000).toLocaleDateString()}
+            {new Date(post.createdAt.seconds * 1000).toLocaleString("ko-KR", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
           </p>
         )}
         {post.updatedAt && (
           <p>
             수정일:{" "}
-            {new Date(post.updatedAt.seconds * 1000).toLocaleDateString()}
+            {new Date(post.updatedAt.seconds * 1000).toLocaleString("ko-KR", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
           </p>
         )}
       </div>
