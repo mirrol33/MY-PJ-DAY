@@ -94,13 +94,13 @@ export default function EditPage() {
           <button
             type="button"
             onClick={() => router.push(`/blog/read/${postId}`)}
-            className="mt-6 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800 cursor-pointer text-sm"
+            className="mt-6 bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-800 cursor-pointer text-sm"
           >
             취소
           </button>
           <button
             type="submit"
-            className="mt-6 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-800 cursor-pointer text-sm"
+            className="mt-6 bg-green-600 text-white px-3 py-2 rounded hover:bg-green-800 cursor-pointer text-sm"
           >
             수정하기
           </button>

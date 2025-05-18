@@ -95,7 +95,7 @@ export default function ReadPostPage({ params }: PostProps) {
       <div className="flex justify-between">
         <button
           onClick={() => router.push("/")}
-          className="mt-6 bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-800 cursor-pointer text-sm"
+          className="mt-6 bg-gray-600 text-white px-3 py-2 rounded hover:bg-gray-800 cursor-pointer text-sm"
         >
           목록으로
         </button>
@@ -103,13 +103,13 @@ export default function ReadPostPage({ params }: PostProps) {
           <div className="flex gap-2">
             <button
               onClick={() => router.push(`/blog/edit/${id}`)}
-              className="mt-6 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-800 cursor-pointer text-sm"
+              className="mt-6 bg-green-600 text-white px-3 py-2 rounded hover:bg-green-800 cursor-pointer text-sm"
             >
               수정하기
             </button>
             <button
               onClick={handleDelete}
-              className="mt-6 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-800 cursor-pointer text-sm"
+              className="mt-6 bg-red-600 text-white px-3 py-2 rounded hover:bg-red-800 cursor-pointer text-sm"
             >
               삭제하기
             </button>

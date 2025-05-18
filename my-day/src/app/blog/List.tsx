@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 
+/* 타입 */
 type Post = {
   id: string;
   title: string;
@@ -37,11 +38,16 @@ export default function List() {
   /* 페이지네이션을 위한 상태변수 추가 */
   const [currentPage, setCurrentPage] = useState(1); // 페이지수
   const [pageCount, setPageCount] = useState(0); // 현재 페이지번호
-  const PageSize = 2; // 한 페이지에 출력하는 게시글 수
+  const PageSize = 4; // 한 페이지에 출력하는 게시글 수
 
   const lastPost = currentPage * PageSize;
   const firstPost = lastPost - PageSize;
   const currentPosts = posts.slice(firstPost, lastPost);
+
+  const pageGroupSize = 3; // 한번에 보여줄 페이지 번호 개수
+  const startPage =
+    Math.floor((currentPage - 1) / pageGroupSize) * pageGroupSize + 1;
+  const endPage = Math.min(startPage + pageGroupSize - 1, pageCount);
 
   useEffect(() => {
     setPageCount(Math.ceil(posts.length / PageSize));
@@ -55,14 +61,14 @@ export default function List() {
         {user ? (
           <Link
             href="/blog/write"
-            className="inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-800"
+            className="inline-block bg-green-600 text-white px-3 py-2 rounded hover:bg-green-800"
           >
             글쓰기
           </Link>
         ) : (
           <button
             disabled
-            className="inline-block bg-gray-400 text-white px-4 py-2 rounded"
+            className="inline-block bg-gray-400 text-white px-3 py-2 rounded"
             title="로그인 후 글쓰기가 가능합니다"
           >
             글쓰기 (로그인 필요)
@@ -97,7 +103,7 @@ export default function List() {
             <div className="mt-4">
               <Link
                 href={`/blog/read/${post.id}`}
-                className="inline-block bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-600 text-sm"
+                className="inline-block bg-gray-200 hover:bg-gray-300 px-3 py-2 rounded text-sm"
               >
                 상세보기
               </Link>
@@ -107,35 +113,94 @@ export default function List() {
       </ul>
       {/* 페이지네이션 출력 */}
       <div className="flex justify-center gap-2 mt-6">
+        {/* 처음 버튼 */}
+        <button
+          onClick={() => setCurrentPage(1)}
+          disabled={currentPage === 1}
+          className={`px-3 py-1 rounded text-sm ${
+            currentPage === 1
+              ? "bg-gray-200 text-gray-400"
+              : "bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"
+          }`}
+        >
+          처음
+        </button>
+
         {/* 이전 버튼 */}
-        {currentPage > 1 && (
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          className={`px-3 py-1 rounded text-sm ${
+            currentPage === 1
+              ? "bg-gray-200 text-gray-400"
+              : "bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"
+          }`}
+        >
+          이전
+        </button>
+        {/* 이전 그룹 ... */}
+        {startPage > 1 && (
           <button
-            onClick={() => setCurrentPage(currentPage - 1)}
-            className="px-3 py-2 rounded bg-gray-200 text-gray-700 text-xs">
-            Previous
+            onClick={() => setCurrentPage(startPage - 1)}
+            className="px-3 py-1 rounded text-sm bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"
+          >
+            ...
           </button>
         )}
-        {/* 페이지 번호 */}
-        {Array.from({ length: pageCount }, (_, i) => (
+
+        {/* 페이지 번호들 (최대 3개씩) */}
+        {Array.from(
+          { length: endPage - startPage + 1 },
+          (_, i) => startPage + i
+        ).map((page) => (
           <button
-          key={i}
-          onClick={() => setCurrentPage(i + 1)}
-          className={`px-3 py-2 rounded text-xs ${
-            currentPage === i + 1
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 text-gray-700"
-          }`}>
-            {i + 1}
+            key={page}
+            onClick={() => setCurrentPage(page)}
+            className={`px-3 py-1 rounded text-xs cursor-pointer ${
+              currentPage === page
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-700"
+            }`}
+          >
+            {page}
           </button>
         ))}
-        {/* 다음 버튼 */}
-        {currentPage < pageCount && (
+        {/* 다음 그룹 ... */}
+        {endPage < pageCount && (
           <button
-            onClick={() => setCurrentPage(currentPage + 1)}
-            className="px-3 py-2 rounded bg-gray-200 text-gray-700 text-xs">
-            Next
+            onClick={() => setCurrentPage(endPage + 1)}
+            className="px-3 py-1 rounded text-sm bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"
+          >
+            ...
           </button>
         )}
+        {/* 다음 버튼 */}
+        <button
+          onClick={() =>
+            setCurrentPage((prev) => Math.min(prev + 1, pageCount))
+          }
+          disabled={currentPage === pageCount}
+          className={`px-3 py-1 rounded text-sm ${
+            currentPage === pageCount
+              ? "bg-gray-200 text-gray-400"
+              : "bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"
+          }`}
+        >
+          다음
+        </button>
+        {/* 마지막 버튼 */}
+        <button
+          onClick={() => setCurrentPage(pageCount)}
+          disabled={currentPage === pageCount}
+          className={`px-3 py-1 rounded text-sm ${
+            currentPage === pageCount
+              ? "bg-gray-200 text-gray-400"
+              : "bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"
+          }
+        `}
+        >
+          마지막
+        </button>
       </div>
     </div>
   );
