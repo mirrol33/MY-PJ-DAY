@@ -12,6 +12,8 @@ type Post = {
   id: string;
   title: string;
   content: string;
+  createdAt: Date;
+  updatedAt: Date;
   author: {
     email: string;
     photoURL: string;
@@ -26,10 +28,15 @@ export default function List() {
   useEffect(() => {
     const fetchPosts = async () => {
       const querySnapshot = await getDocs(collection(db, "posts"));
-      const postData = querySnapshot.docs.map((doc) => ({
-        ...(doc.data() as Post),
-        id: doc.id,
-      }));
+      const postData = querySnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          ...(data as Post),
+          id: doc.id,
+          createdAt: data.createdAt.toDate(),
+          updatedAt: data.updatedAt.toDate(),
+        };
+      });
       setPosts(postData);
     };
     fetchPosts();
@@ -95,10 +102,18 @@ export default function List() {
                 ? `${post.title.slice(0, 40)}...`
                 : post.title}
             </h2>
-            <p className="text-gray-600 mt-2">
+            <p className="text-gray-600 mb-2">
               {post.content.length > 80
                 ? `${post.content.slice(0, 80)}...`
                 : post.content}
+            </p>
+            {/* 작성일 추가 */}
+            <p className="text-gray-400 mt-2 text-xs">
+              작성일: {post.createdAt.toLocaleString("ko-KR")}
+            </p>
+            {/* 수정일 추가 */}
+            <p className="text-gray-400 mb-2 text-xs">
+              수정일: {post.updatedAt.toLocaleString("ko-KR")}
             </p>
             <div className="mt-4">
               <Link
@@ -205,3 +220,5 @@ export default function List() {
     </div>
   );
 }
+
+
