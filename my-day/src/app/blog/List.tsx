@@ -6,6 +6,8 @@ import { collection, getDocs } from "firebase/firestore";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
+// 좋아요 버튼 구현에 필요한 모듈
+import { doc, setDoc, deleteDoc, getDoc } from "firebase/firestore";
 
 /* 타입 */
 type Post = {
@@ -60,26 +62,82 @@ export default function List() {
     setPageCount(Math.ceil(posts.length / PageSize));
   }, [posts]);
 
+  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set()); // 좋아요 추가/삭제 상태 확인
+
+  useEffect(() => {
+    const fetchLikedPosts = async () => {
+      if (!user) return;
+      const snapshot = await getDocs(collection(db, "likes"));
+      const userLikes = snapshot.docs
+        .filter((doc) => doc.data().userId === user.uid)
+        .map((doc) => doc.data().postId);
+      setLikedPosts(new Set(userLikes));
+    };
+    fetchLikedPosts();
+  }, [user]);
+
+  const toggleLike = async (postId: string) => {
+    if (!user) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+
+    const likeId = `${user.uid}_${postId}`;
+    const likeRef = doc(db, "likes", likeId);
+
+    const liked = likedPosts.has(postId);
+
+    if (liked) {
+      await deleteDoc(likeRef);
+      setLikedPosts((prev) => {
+        const updated = new Set(prev);
+        updated.delete(postId);
+        return updated;
+      });
+    } else {
+      await setDoc(likeRef, {
+        userId: user.uid,
+        postId,
+        createdAt: new Date(),
+      });
+      setLikedPosts((prev) => new Set(prev).add(postId));
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto py-12 px-6">
       <h1 className="text-3xl font-bold mb-6 text-center">전체 게시글 목록</h1>
 
-      <div className="flex justify-end mb-6">
+      <div className="flex justify-end gap-2 mb-6">
         {user ? (
-          <Link
-            href="/blog/write"
-            className="inline-block bg-green-600 text-white px-3 py-2 rounded hover:bg-green-800"
-          >
-            글쓰기
-          </Link>
+          <>
+            <Link
+              href="/blog/likes"
+              className="inline-block bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-800">
+              찜 목록
+            </Link>
+            <Link
+              href="/blog/write"
+              className="inline-block bg-green-600 text-white px-3 py-2 rounded hover:bg-green-800">
+              글쓰기
+            </Link>
+          </>
         ) : (
+          <>
+          <button
+            disabled
+              className="inline-block bg-gray-400 text-white px-3 py-2 rounded"
+              title="로그인 후 찜목록 추가가 가능합니다"
+              >
+              찜 목록
+            </button>
           <button
             disabled
             className="inline-block bg-gray-400 text-white px-3 py-2 rounded"
-            title="로그인 후 글쓰기가 가능합니다"
-          >
-            글쓰기 (로그인 필요)
+            title="로그인 후 글쓰기가 가능합니다">
+            글쓰기
           </button>
+          </>
         )}
       </div>
 
@@ -97,16 +155,18 @@ export default function List() {
               </span>
             </div>
 
-            <h2 className="font-semibold text-lg">
-              {post.title.length > 40
-                ? `${post.title.slice(0, 40)}...`
-                : post.title}
-            </h2>
-            <p className="text-gray-600 mb-2">
-              {post.content.length > 80
-                ? `${post.content.slice(0, 80)}...`
-                : post.content}
-            </p>
+            <Link href={`/blog/read/${post.id}`}>
+              <h2 className="font-semibold text-lg">
+                {post.title.length > 40
+                  ? `${post.title.slice(0, 40)}...`
+                  : post.title}
+              </h2>
+              <p className="text-gray-600 mb-2">
+                {post.content.length > 80
+                  ? `${post.content.slice(0, 80)}...`
+                  : post.content}
+              </p>
+            </Link>
             {/* 작성일 추가 */}
             <p className="text-gray-400 mt-2 text-xs">
               작성일: {post.createdAt.toLocaleString("ko-KR")}
@@ -118,10 +178,18 @@ export default function List() {
             <div className="mt-4">
               <Link
                 href={`/blog/read/${post.id}`}
-                className="inline-block bg-gray-200 hover:bg-gray-300 px-3 py-2 rounded text-sm"
-              >
+                className="inline-block bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-xs">
                 상세보기
               </Link>
+              <button
+                onClick={() => toggleLike(post.id)}
+                className={`ml-2 px-2 py-1 text-xs rounded cursor-pointer ${
+                  likedPosts.has(post.id)
+                    ? "bg-yellow-300 text-black"
+                    : "bg-gray-100 text-gray-500"
+                }`}>
+                {likedPosts.has(post.id) ? "★ 찜삭제" : "☆ 찜하기"}
+              </button>
             </div>
           </li>
         ))}
@@ -136,8 +204,7 @@ export default function List() {
             currentPage === 1
               ? "bg-gray-200 text-gray-400"
               : "bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"
-          }`}
-        >
+          }`}>
           처음
         </button>
 
@@ -149,16 +216,14 @@ export default function List() {
             currentPage === 1
               ? "bg-gray-200 text-gray-400"
               : "bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"
-          }`}
-        >
+          }`}>
           이전
         </button>
         {/* 이전 그룹 ... */}
         {startPage > 1 && (
           <button
             onClick={() => setCurrentPage(startPage - 1)}
-            className="px-3 py-1 rounded text-sm bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"
-          >
+            className="px-3 py-1 rounded text-sm bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer">
             ...
           </button>
         )}
@@ -175,8 +240,7 @@ export default function List() {
               currentPage === page
                 ? "bg-blue-500 text-white"
                 : "bg-gray-200 text-gray-700"
-            }`}
-          >
+            }`}>
             {page}
           </button>
         ))}
@@ -184,8 +248,7 @@ export default function List() {
         {endPage < pageCount && (
           <button
             onClick={() => setCurrentPage(endPage + 1)}
-            className="px-3 py-1 rounded text-sm bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"
-          >
+            className="px-3 py-1 rounded text-sm bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer">
             ...
           </button>
         )}
@@ -199,8 +262,7 @@ export default function List() {
             currentPage === pageCount
               ? "bg-gray-200 text-gray-400"
               : "bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"
-          }`}
-        >
+          }`}>
           다음
         </button>
         {/* 마지막 버튼 */}
@@ -212,13 +274,10 @@ export default function List() {
               ? "bg-gray-200 text-gray-400"
               : "bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"
           }
-        `}
-        >
+        `}>
           마지막
         </button>
       </div>
     </div>
   );
 }
-
-
