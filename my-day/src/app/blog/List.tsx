@@ -47,7 +47,7 @@ export default function List() {
   /* 페이지네이션을 위한 상태변수 추가 */
   const [currentPage, setCurrentPage] = useState(1); // 페이지수
   const [pageCount, setPageCount] = useState(0); // 현재 페이지번호
-  const PageSize = 4; // 한 페이지에 출력하는 게시글 수
+  const PageSize = 5; // 한 페이지에 출력하는 게시글 수
 
   const lastPost = currentPage * PageSize;
   const firstPost = lastPost - PageSize;
@@ -113,7 +113,7 @@ export default function List() {
           <>
             <Link
               href="/blog/likes"
-              className="inline-block bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-800">
+              className="inline-block bg-yellow-400 px-3 py-2 rounded hover:bg-yellow-500">
               찜 목록
             </Link>
             <Link
@@ -124,18 +124,16 @@ export default function List() {
           </>
         ) : (
           <>
-          <button
-            disabled
-              className="inline-block bg-gray-400 text-white px-3 py-2 rounded"
-              title="로그인 후 찜목록 추가가 가능합니다"
-              >
+          <Link
+              href="/blog/likes"
+              className="inline-block bg-yellow-400 px-3 py-2 rounded hover:bg-yellow-500">
               찜 목록
-            </button>
+          </Link>
           <button
             disabled
             className="inline-block bg-gray-400 text-white px-3 py-2 rounded"
             title="로그인 후 글쓰기가 가능합니다">
-            글쓰기
+            글쓰기 (로그인 필요!)
           </button>
           </>
         )}
@@ -156,14 +154,14 @@ export default function List() {
             </div>
 
             <Link href={`/blog/read/${post.id}`}>
-              <h2 className="font-semibold text-lg">
+              <h2 className="text-lg">
                 {post.title.length > 40
                   ? `${post.title.slice(0, 40)}...`
                   : post.title}
               </h2>
-              <p className="text-gray-600 mb-2">
+              <p className="text-gray-600 mb-2 text-sm">
                 {post.content.length > 80
-                  ? `${post.content.slice(0, 80)}...`
+                  ? `${post.content.slice(0, 60)}...`
                   : post.content}
               </p>
             </Link>
@@ -178,7 +176,7 @@ export default function List() {
             <div className="mt-4">
               <Link
                 href={`/blog/read/${post.id}`}
-                className="inline-block bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-xs">
+                className="inline-block bg-gray-100 hover:bg-gray-300 px-2 py-1 rounded text-xs">
                 상세보기
               </Link>
               <button
@@ -200,7 +198,7 @@ export default function List() {
         <button
           onClick={() => setCurrentPage(1)}
           disabled={currentPage === 1}
-          className={`px-3 py-1 rounded text-sm ${
+          className={`px-2 py-1 rounded text-xs ${
             currentPage === 1
               ? "bg-gray-200 text-gray-400"
               : "bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"
@@ -212,7 +210,7 @@ export default function List() {
         <button
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
           disabled={currentPage === 1}
-          className={`px-3 py-1 rounded text-sm ${
+          className={`px-2 py-1 rounded text-xs ${
             currentPage === 1
               ? "bg-gray-200 text-gray-400"
               : "bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"
@@ -223,7 +221,7 @@ export default function List() {
         {startPage > 1 && (
           <button
             onClick={() => setCurrentPage(startPage - 1)}
-            className="px-3 py-1 rounded text-sm bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer">
+            className="px-2 py-1 rounded text-xs bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer">
             ...
           </button>
         )}
@@ -236,9 +234,9 @@ export default function List() {
           <button
             key={page}
             onClick={() => setCurrentPage(page)}
-            className={`px-3 py-1 rounded text-xs cursor-pointer ${
+            className={`px-2 py-1 rounded text-xs cursor-pointer ${
               currentPage === page
-                ? "bg-blue-500 text-white"
+                ? "bg-gray-500 text-white"
                 : "bg-gray-200 text-gray-700"
             }`}>
             {page}
@@ -248,7 +246,7 @@ export default function List() {
         {endPage < pageCount && (
           <button
             onClick={() => setCurrentPage(endPage + 1)}
-            className="px-3 py-1 rounded text-sm bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer">
+            className="px-3 py-1 rounded text-xs bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer">
             ...
           </button>
         )}
@@ -258,7 +256,7 @@ export default function List() {
             setCurrentPage((prev) => Math.min(prev + 1, pageCount))
           }
           disabled={currentPage === pageCount}
-          className={`px-3 py-1 rounded text-sm ${
+          className={`px-2 py-1 rounded text-xs ${
             currentPage === pageCount
               ? "bg-gray-200 text-gray-400"
               : "bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"
@@ -269,7 +267,7 @@ export default function List() {
         <button
           onClick={() => setCurrentPage(pageCount)}
           disabled={currentPage === pageCount}
-          className={`px-3 py-1 rounded text-sm ${
+          className={`px-2 py-1 rounded text-xs ${
             currentPage === pageCount
               ? "bg-gray-200 text-gray-400"
               : "bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"

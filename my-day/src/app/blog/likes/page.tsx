@@ -92,9 +92,11 @@ export default function LikesPage() {
   if (!user) {
     return (
       <div className="max-w-2xl mx-auto p-6 text-center">
-        <p className="text-red-500 font-semibold">로그인 후 이용 가능합니다.</p>
-        <Link href="/" className="text-blue-500 underline mt-4 inline-block">
-          메인으로 이동
+        <p className="text-red-400 font-semibold mb-6">로그인 후 이용 가능합니다.</p>
+        <Link href="/" 
+        className="inline-block bg-gray-200 hover:bg-gray-300 text-sm px-4 py-2 rounded"
+        >
+          ← 메인 페이지로 이동
         </Link>
       </div>
     );
@@ -102,7 +104,7 @@ export default function LikesPage() {
 
   return (
     <div className="max-w-4xl mx-auto py-12 px-6">
-      <h1 className="text-2xl font-bold mb-6 text-center">찜 게시글 목록</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center">찜 목록</h1>
 
       {loading ? (
         <p className="text-center text-gray-500">로딩 중...</p>
@@ -111,7 +113,7 @@ export default function LikesPage() {
       ) : (
         <ul className="space-y-6">
           {likedPosts.map((post) => (
-            <li key={post.id} className="border p-4 rounded shadow-sm">
+            <li key={post.id} className="border-1 border-gray-300 p-4 rounded shadow-sm bg-gray-50">
               <div className="flex items-center mb-3 gap-3">
                 <img
                   src={post.author.photoURL}
@@ -158,7 +160,7 @@ export default function LikesPage() {
           href="/"
           className="inline-block bg-gray-200 hover:bg-gray-300 text-sm px-4 py-2 rounded"
         >
-          ← 전체 게시글 페이지로 돌아가기
+          ← 메인 페이지로 이동
         </Link>
       </div>
     </div>

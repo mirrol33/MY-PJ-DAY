@@ -61,17 +61,17 @@ export default function GoogleAuthButton() {
   }
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center justify-end gap-4">
       <img
         src={user.photoURL || "/default-avatar.png"}
         alt="프로필"
         className="w-10 h-10 rounded-full border border-gray-300"
       />
 
-      <span className="text-white">{user.displayName}</span>
+      <span className="text-white max-w-3xs overflow-hidden">{user.displayName}</span>
       <button
         onClick={handleLogout}
-        className="px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-500 cursor-pointer text-sm"
+        className="px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-500 cursor-pointer text-xs"
       >
         로그아웃
       </button>
