@@ -1,6 +1,7 @@
 // app/components/GoogleAuthButton.tsx
 "use client";
 
+import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { auth, db } from "@/lib/firebase";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
@@ -63,10 +64,13 @@ export default function GoogleAuthButton() {
 
   return (
     <div className="flex items-center justify-center gap-4">
-      <img
+      <Image
         src={user.photoURL || "/default-avatar.png"}
         alt="프로필"
-        className="w-10 h-10 rounded-full border border-gray-300"
+        width={40}
+        height={40}
+        className="rounded-full border border-gray-300"
+        unoptimized // 외부 이미지 지원
       />
       <span className="text-white max-w-3xs overflow-hidden">
         {user.displayName}({user.email})

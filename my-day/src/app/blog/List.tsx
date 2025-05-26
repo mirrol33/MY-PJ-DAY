@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 // 좋아요 버튼 구현에 필요한 모듈
 import { doc, setDoc, deleteDoc } from "firebase/firestore";
+import Image from "next/image";
 
 /* 타입 */
 type Post = {
@@ -125,17 +126,17 @@ export default function List() {
           </>
         ) : (
           <>
-          <Link
+            <Link
               href="/blog/likes"
               className="inline-block bg-yellow-400 px-3 py-2 rounded hover:bg-yellow-500">
               찜 목록
-          </Link>
-          <button
-            disabled
-            className="inline-block bg-gray-400 text-white px-3 py-2 rounded"
-            title="로그인 후 글쓰기가 가능합니다">
-            글쓰기 (구글 로그인 필요!)
-          </button>
+            </Link>
+            <button
+              disabled
+              className="inline-block bg-gray-400 text-white px-3 py-2 rounded"
+              title="로그인 후 글쓰기가 가능합니다">
+              글쓰기 (구글 로그인 필요!)
+            </button>
           </>
         )}
       </div>
@@ -144,11 +145,15 @@ export default function List() {
         {currentPosts.map((post) => (
           <li key={post.id} className="border-1 border-gray-300 p-4 rounded">
             <div className="flex items-center mb-3 gap-3">
-              <img
+              <Image
                 src={post.author?.photoURL || "/default-avatar.png"}
                 alt="프로필"
-                className="w-10 h-10 rounded-full"
+                width={40}
+                height={40}
+                className="rounded-full"
+                unoptimized
               />
+
               <span className="text-sm text-gray-700">
                 {post.author?.name || "익명"} ({post.author?.email})
               </span>

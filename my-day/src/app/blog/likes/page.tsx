@@ -13,6 +13,7 @@ import {
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 type Post = {
   id: string;
@@ -115,11 +116,14 @@ export default function LikesPage() {
           {likedPosts.map((post) => (
             <li key={post.id} className="border-1 border-gray-300 p-4 rounded shadow-sm bg-gray-50">
               <div className="flex items-center mb-3 gap-3">
-                <img
-                  src={post.author.photoURL}
-                  alt="프로필"
-                  className="w-10 h-10 rounded-full"
-                />
+                <Image
+                          src={post.author.photoURL || "/default-avatar.png"}
+                          alt="프로필"
+                          width={40}
+                          height={40}
+                          className="rounded-full"
+                          unoptimized // 외부 이미지의 경우 필수, 내부 이미지만 사용한다면 제거 가능
+                        />
                 <span className="text-sm text-gray-700">
                   {post.author.name} ({post.author.email})
                 </span>
