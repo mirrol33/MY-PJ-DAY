@@ -1,4 +1,4 @@
-// GoogleAuthButton.tsx
+// app/components/GoogleAuthButton.tsx
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
@@ -7,7 +7,7 @@ import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 
 export default function GoogleAuthButton() {
-  const { user } = useAuth();
+  const { user, setLoginType } = useAuth();
 
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
@@ -33,6 +33,7 @@ export default function GoogleAuthButton() {
         console.log("✅ 기존 사용자 로그인 완료");
       }
 
+      setLoginType("google"); // ✅ 전역 상태로 로그인 유형 설정
       alert(`환영합니다, ${user.displayName}님!`);
     } catch (error) {
       console.error("❌ 로그인 또는 회원가입 오류:", error);
@@ -43,6 +44,7 @@ export default function GoogleAuthButton() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      setLoginType("none"); // ✅ 전역 상태 초기화
       alert("로그아웃 되었습니다.");
     } catch (error) {
       console.error("❌ 로그아웃 오류:", error);
@@ -53,8 +55,7 @@ export default function GoogleAuthButton() {
     return (
       <button
         onClick={handleGoogleLogin}
-        className="px-4 py-2 bg-green-600 text-white rounded text-sm cursor-pointer hover:bg-green-800 flex items-center justify-center"
-      >
+        className="px-4 py-2 bg-green-600 text-white rounded text-sm cursor-pointer hover:bg-green-700 flex items-center justify-center">
         Google 계정으로 로그인
       </button>
     );
@@ -67,12 +68,12 @@ export default function GoogleAuthButton() {
         alt="프로필"
         className="w-10 h-10 rounded-full border border-gray-300"
       />
-
-      <span className="text-white max-w-3xs overflow-hidden">{user.displayName}</span>
+      <span className="text-white max-w-3xs overflow-hidden">
+        {user.displayName}({user.email})
+      </span>
       <button
         onClick={handleLogout}
-        className="px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-500 cursor-pointer text-xs"
-      >
+        className="px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-500 cursor-pointer text-xs">
         로그아웃
       </button>
     </div>

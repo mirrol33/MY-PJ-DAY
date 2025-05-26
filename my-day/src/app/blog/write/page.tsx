@@ -77,13 +77,13 @@ export default function WritePage() {
           <button
             onClick={() => router.push("/")}
             type="button"
-            className="mt-6 bg-gray-600 text-white px-3 py-2 rounded hover:bg-gray-800 text-sm"
+            className="mt-6 bg-gray-600 text-white px-3 py-2 rounded hover:bg-gray-800 text-sm cursor-pointer"
           >
             목록으로
           </button>
           <button
             type="submit"
-            className="mt-6 bg-green-600 text-white px-3 py-2 rounded hover:bg-green-800 text-sm"
+            className="mt-6 bg-green-600 text-white px-3 py-2 rounded hover:bg-green-800 text-sm cursor-pointer"
           >
             작성하기(관리자 권한)
           </button>
