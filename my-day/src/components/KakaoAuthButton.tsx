@@ -89,7 +89,7 @@ export default function KakaoAuthButton() {
 
   if (user) {
     return (
-      <div className="flex items-center gap-3 text-white">
+      <div className="flex items-center gap-2 text-white">
         <Image
           src={user.profile_image_url}
           alt="프로필 이미지"
@@ -100,7 +100,7 @@ export default function KakaoAuthButton() {
         />
         <div className="text-sm text-white">
           <p>{user.nickname}</p>
-          <p className="text-xs opacity-80">{user.email}</p>
+          <p className="text-xs opacity-80">({user.email})</p>
         </div>
         <button
           onClick={logoutFromKakao}
