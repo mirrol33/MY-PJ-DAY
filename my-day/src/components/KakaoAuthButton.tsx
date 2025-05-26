@@ -96,6 +96,7 @@ export default function KakaoAuthButton() {
           width={32}
           height={32}
           className="w-8 h-8 rounded-full"
+          unoptimized // 외부 이미지의 경우 필수, 내부 이미지만 사용한다면 제거 가능
         />
         <div className="text-sm text-white">
           <p>{user.nickname}</p>
