@@ -61,7 +61,7 @@ export default function GoogleAuthButton() {
   }
 
   return (
-    <div className="flex items-center justify-end gap-4">
+    <div className="flex items-center justify-center gap-4">
       <img
         src={user.photoURL || "/default-avatar.png"}
         alt="프로필"
