@@ -53,7 +53,7 @@ export default function GoogleAuthButton() {
     return (
       <button
         onClick={handleGoogleLogin}
-        className="px-4 py-2 bg-green-600 text-white rounded text-sm cursor-pointer hover:bg-green-800"
+        className="px-4 py-2 bg-green-600 text-white rounded text-sm cursor-pointer hover:bg-green-800 flex items-center justify-center"
       >
         Google 계정으로 로그인
       </button>
