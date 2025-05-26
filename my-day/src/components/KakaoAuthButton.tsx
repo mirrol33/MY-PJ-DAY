@@ -1,13 +1,12 @@
+// app/components/KakaoAuthButton.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
+// app/components/KakaoAuthButton.tsx
+"use client";
 
-declare global {
-  interface Window {
-    Kakao: any;
-  }
-}
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { useAuth } from '@/context/AuthContext';
 
 interface KakaoProfile {
   uid: string;
@@ -47,31 +46,30 @@ export default function KakaoAuthButton() {
 
     window.Kakao.Auth.login({
       scope: 'profile_nickname, account_email, profile_image',
-      success: function (authObj: any) {
+      success: function (authObj: object) {
         console.log('✅ 로그인 성공:', authObj);
 
         window.Kakao.API.request({
           url: '/v2/user/me',
-          success: function (res: any) {
+          success: function (res) {
             const kakaoUid = res.id.toString();
             const profile: KakaoProfile = {
               uid: kakaoUid,
               nickname: res.kakao_account.profile.nickname,
               email: res.kakao_account.email,
-              profile_image_url:
-                res.kakao_account.profile.profile_image_url,
+              profile_image_url: res.kakao_account.profile.profile_image_url,
             };
 
             setUser(profile);
             setLoginType('kakao'); // ✅ 전역 상태로 로그인 유형 설정
             alert(`환영합니다, ${profile.nickname}님!`);
           },
-          fail: function (error: any) {
+          fail: function (error: unknown) {
             console.error('❌ 사용자 정보 요청 실패', error);
           },
         });
       },
-      fail: function (err: any) {
+      fail: function (err: unknown) {
         console.error('❌ 로그인 실패:', err);
         alert('카카오 로그인 실패');
       },
@@ -92,9 +90,11 @@ export default function KakaoAuthButton() {
   if (user) {
     return (
       <div className="flex items-center gap-3 text-white">
-        <img
+        <Image
           src={user.profile_image_url}
           alt="프로필 이미지"
+          width={32}
+          height={32}
           className="w-8 h-8 rounded-full"
         />
         <div className="text-sm text-white">
