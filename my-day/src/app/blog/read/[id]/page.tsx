@@ -15,7 +15,7 @@ type PostProps = {
 
 export default function ReadPostPage({ params }: PostProps) {
   const { id } = use(params);
-  const [post, setPost] = useState<any>(null);
+  const [post, setPost] = useState<Record<string, any> | null>(null);
   const [user] = useAuthState(auth);
   const router = useRouter();
 
