@@ -1,5 +1,3 @@
-// app/blog/read/[id]/page.tsx
-
 "use client";
 
 import { use } from "react";
@@ -9,13 +7,30 @@ import { notFound, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 
+// 작성자 타입 정의
+type Author = {
+  name: string;
+  email: string;
+  photoURL?: string;
+  uid: string;
+};
+
+// 게시글 타입 정의
+type Post = {
+  title: string;
+  content: string;
+  author: Author;
+  createdAt: { seconds: number };
+  updatedAt?: { seconds: number };
+};
+
 type PostProps = {
   params: Promise<{ id: string }>;
 };
 
 export default function ReadPostPage({ params }: PostProps) {
   const { id } = use(params);
-  const [post, setPost] = useState<Record<string, any> | null>(null);
+  const [post, setPost] = useState<Post | null>(null);
   const [user] = useAuthState(auth);
   const router = useRouter();
 
@@ -26,7 +41,8 @@ export default function ReadPostPage({ params }: PostProps) {
       if (!docSnap.exists()) {
         notFound();
       } else {
-        setPost(docSnap.data());
+        const postData = docSnap.data() as Post;
+        setPost(postData);
       }
     };
     fetchPost();
@@ -56,12 +72,12 @@ export default function ReadPostPage({ params }: PostProps) {
       </div>
       <div className="flex items-center gap-3">
         <img
-          src={post.author?.photoURL || "/default-avatar.png"}
+          src={post.author.photoURL || "/default-avatar.png"}
           alt="프로필"
           className="w-10 h-10 rounded-full"
         />
         <span className="text-sm text-gray-700">
-          {post.author?.name || "익명"} ({post.author?.email})
+          {post.author.name || "익명"} ({post.author.email})
         </span>
       </div>
 
@@ -99,7 +115,7 @@ export default function ReadPostPage({ params }: PostProps) {
         >
           목록으로
         </button>
-        {user?.uid === post.author?.uid && (
+        {user?.uid === post.author.uid && (
           <div className="flex gap-2">
             <button
               onClick={() => router.push(`/blog/edit/${id}`)}
