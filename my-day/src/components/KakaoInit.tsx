@@ -16,7 +16,7 @@ export default function KakaoInit() {
     script.async = true;
     script.onload = () => {
       if (window.Kakao && !window.Kakao.isInitialized()) {
-        window.Kakao.init("e8c81aeb54fd681020b00a6d1ac6921f"); // 여기에 JavaScript 키 삽입
+        window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_JS_KEY); // 여기에 JavaScript 키 삽입
         console.log("✅ Kakao SDK initialized");
       }
     };
