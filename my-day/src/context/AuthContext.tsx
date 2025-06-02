@@ -10,6 +10,7 @@ import {
 } from 'react'
 import { onAuthStateChanged, User, signOut } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
+import Script from 'next/script'
 
 // 로그인 타입 정의
 type LoginType = 'none' | 'google' | 'kakao'
@@ -143,7 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <>
-      <script
+      <Script
         src="https://developers.kakao.com/sdk/js/kakao.js"
         onLoad={() => {
           if (
@@ -155,7 +156,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             console.log('✅ Kakao SDK initialized in AuthProvider')
           }
         }}
-      ></script>
+        strategy="afterInteractive"
+      ></Script>
 
       <AuthContext.Provider
         value={{ user, loginType, setLoginType, setUser, logout, loading }}
