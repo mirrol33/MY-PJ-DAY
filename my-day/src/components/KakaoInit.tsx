@@ -1,4 +1,4 @@
-// app/components/KakaoInit.tsx
+// components/KakaoInit.tsx
 'use client';
 
 import { useEffect } from 'react';

@@ -35,6 +35,22 @@ export default function ReadPostPage({ params }: PostProps) {
   const [user] = useAuthState(auth);
   const router = useRouter();
 
+  // ✅ kakaoUser 상태 추가
+  const [kakaoUser, setKakaoUser] = useState<{ uid: string } | null>(null);
+
+  useEffect(() => {
+    // ✅ 로컬스토리지에서 kakaoUser 가져오기
+    const storedKakaoUser = localStorage.getItem("kakaoUser");
+    if (storedKakaoUser) {
+      try {
+        const parsedUser = JSON.parse(storedKakaoUser);
+        setKakaoUser(parsedUser);
+      } catch (e) {
+        console.error("❌ kakaoUser 파싱 실패:", e);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     const fetchPost = async () => {
       const docRef = doc(db, "posts", id);
@@ -65,6 +81,10 @@ export default function ReadPostPage({ params }: PostProps) {
 
   if (!post) return <p>로딩 중...</p>;
 
+  // ✅ 수정/삭제 버튼 조건
+  const isAuthor =
+    user?.uid === post.author.uid || kakaoUser?.uid === post.author.uid;
+
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-4">
       <h1 className="text-3xl font-bold">{post.title}</h1>
@@ -78,7 +98,7 @@ export default function ReadPostPage({ params }: PostProps) {
           width={40}
           height={40}
           className="rounded-full"
-          unoptimized // 외부 이미지의 경우 필수, 내부 이미지만 사용한다면 제거 가능
+          unoptimized
         />
         <span className="text-sm text-gray-700">
           {post.author.name || "익명"} ({post.author.email})
@@ -118,7 +138,9 @@ export default function ReadPostPage({ params }: PostProps) {
           className="mt-6 bg-gray-600 text-white px-3 py-2 rounded hover:bg-gray-800 cursor-pointer text-sm">
           목록으로
         </button>
-        {user?.uid === post.author.uid && (
+
+        {/* ✅ 구글 또는 카카오 uid가 작성자와 일치할 경우 버튼 노출 */}
+        {isAuthor && (
           <div className="flex gap-2">
             <button
               onClick={() => router.push(`/blog/edit/${id}`)}

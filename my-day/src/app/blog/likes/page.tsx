@@ -1,6 +1,7 @@
+// app/blog/likes/page.tsx
 "use client";
 
-import { db, auth } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import {
   collection,
   getDocs,
@@ -10,10 +11,10 @@ import {
   getDoc,
   deleteDoc,
 } from "firebase/firestore";
-import { useAuthState } from "react-firebase-hooks/auth";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useAuth } from "@/context/AuthContext"; // ✅ useAuth 사용
 
 type Post = {
   id: string;
@@ -33,7 +34,7 @@ type LikedPost = Post & {
 };
 
 export default function LikesPage() {
-  const [user] = useAuthState(auth);
+  const { user } = useAuth(); // ✅ 컨텍스트 기반 인증 사용
   const [likedPosts, setLikedPosts] = useState<LikedPost[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -45,7 +46,9 @@ export default function LikesPage() {
         return;
       }
 
-      const q = query(collection(db, "likes"), where("userId", "==", user.uid));
+      const userId = user.uid || user.email; // ✅ 고유 식별자 대체
+
+      const q = query(collection(db, "likes"), where("userId", "==", userId));
       const likeSnapshot = await getDocs(q);
 
       const posts: LikedPost[] = [];
@@ -94,8 +97,9 @@ export default function LikesPage() {
     return (
       <div className="max-w-2xl mx-auto p-6 text-center">
         <p className="text-red-400 font-semibold mb-6">로그인 후 이용 가능합니다.</p>
-        <Link href="/" 
-        className="inline-block bg-gray-200 hover:bg-gray-300 text-sm px-4 py-2 rounded"
+        <Link
+          href="/"
+          className="inline-block bg-gray-200 hover:bg-gray-300 text-sm px-4 py-2 rounded"
         >
           ← 메인 페이지로 이동
         </Link>
@@ -117,13 +121,13 @@ export default function LikesPage() {
             <li key={post.id} className="border-1 border-gray-300 p-4 rounded shadow-sm bg-gray-50">
               <div className="flex items-center mb-3 gap-3">
                 <Image
-                          src={post.author.photoURL || "/default-avatar.png"}
-                          alt="프로필"
-                          width={40}
-                          height={40}
-                          className="rounded-full"
-                          unoptimized // 외부 이미지의 경우 필수, 내부 이미지만 사용한다면 제거 가능
-                        />
+                  src={post.author.photoURL || "/default-avatar.png"}
+                  alt="프로필"
+                  width={40}
+                  height={40}
+                  className="rounded-full"
+                  unoptimized
+                />
                 <span className="text-sm text-gray-700">
                   {post.author.name} ({post.author.email})
                 </span>

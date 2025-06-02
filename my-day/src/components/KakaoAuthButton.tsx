@@ -1,4 +1,3 @@
-// app/components/KakaoAuthButton.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -9,16 +8,35 @@ import { db } from "@/lib/firebase"; // Firebase 초기화 모듈
 
 interface KakaoProfile {
   uid: string;
-  nickname: string;
+  name: string;
   email: string;
-  profile_image_url: string;
+  photoURL: string;
 }
 
 export default function KakaoAuthButton() {
   const [user, setUser] = useState<KakaoProfile | null>(null);
-  const { setLoginType } = useAuth();
+  const {
+    setLoginType,
+    setUser: setUserState,
+    logout, // ✅ AuthContext의 logout 함수 가져오기
+  } = useAuth();
 
   useEffect(() => {
+    // ✅ 로컬스토리지에서 사용자 정보 복원
+    const savedUser = localStorage.getItem("kakaoUser");
+    if (savedUser) {
+      try {
+        const parsedUser: KakaoProfile = JSON.parse(savedUser);
+        setUser(parsedUser);
+        setUserState(parsedUser);
+        setLoginType("kakao");
+      } catch (err) {
+        console.error("❌ kakaoUser JSON 파싱 실패", err);
+        localStorage.removeItem("kakaoUser");
+      }
+    }
+
+    // ✅ Kakao SDK 로드 및 초기화
     if (!window.Kakao && typeof window !== "undefined") {
       const script = document.createElement("script");
       script.src = "https://developers.kakao.com/sdk/js/kakao.js";
@@ -63,22 +81,20 @@ export default function KakaoAuthButton() {
             const kakaoUid = res.id.toString();
             const profile: KakaoProfile = {
               uid: kakaoUid,
-              nickname: res.kakao_account.profile.nickname,
+              name: res.kakao_account.profile.nickname,
               email: res.kakao_account.email,
-              profile_image_url: res.kakao_account.profile.profile_image_url,
+              photoURL: res.kakao_account.profile.profile_image_url,
             };
 
-            // ✅ Firestore에 회원 존재 여부 확인
             const userRef = doc(db, "users", kakaoUid);
             const docSnap = await getDoc(userRef);
 
             if (!docSnap.exists()) {
-              // 신규 사용자 등록
               await setDoc(userRef, {
                 uid: profile.uid,
-                name: profile.nickname,
+                name: profile.name,
                 email: profile.email,
-                photoURL: profile.profile_image_url,
+                photoURL: profile.photoURL,
                 createdAt: serverTimestamp(),
                 role: "user",
               });
@@ -88,8 +104,13 @@ export default function KakaoAuthButton() {
             }
 
             setUser(profile);
-            setLoginType("kakao"); // ✅ 전역 상태로 로그인 유형 설정
-            alert(`환영합니다, ${profile.nickname}님!`);
+            setUserState(profile);
+            setLoginType("kakao");
+
+            localStorage.setItem("kakaoUser", JSON.stringify(profile));
+            localStorage.setItem("loginType", "kakao");
+
+            alert(`환영합니다, ${profile.name}님!`);
           },
           fail: function (error: unknown) {
             console.error("❌ 사용자 정보 요청 실패", error);
@@ -103,43 +124,32 @@ export default function KakaoAuthButton() {
     });
   };
 
-  const logoutFromKakao = () => {
-    if (!window.Kakao || !window.Kakao.Auth.getAccessToken()) return;
-
-    window.Kakao.Auth.logout(() => {
-      console.log("👋 로그아웃 완료");
-      setUser(null);
-      setLoginType("none"); // ✅ 전역 상태 초기화
-      alert("카카오 로그아웃 되었습니다.");
-    });
-  };
-
-  if (user) {
-    return (
-      <div className="flex items-center gap-2 text-white">
-        <Image
-          src={user.profile_image_url}
-          alt="프로필 이미지"
-          width={32}
-          height={32}
-          className="w-8 h-8 rounded-full"
-          unoptimized // 외부 이미지의 경우 필수, 내부 이미지만 사용한다면 제거 가능
-        />
-        <div className="text-sm text-white">
-          <p>{user.nickname}</p>
-          <p className="text-xs opacity-80">({user.email})</p>
-        </div>
-        <button
-          onClick={logoutFromKakao}
-          className="bg-gray-300 hover:bg-gray-400 text-black px-2 py-1 rounded text-xs ml-2"
-        >
-          로그아웃
-        </button>
+  return user ? (
+    <div className="flex items-center gap-2 text-white">
+      <Image
+        src={user.photoURL}
+        alt="프로필 이미지"
+        width={32}
+        height={32}
+        className="w-8 h-8 rounded-full"
+        unoptimized
+      />
+      <div className="text-sm text-white">
+        <p>{user.name}</p>
+        <p className="text-xs opacity-80">({user.email})</p>
       </div>
-    );
-  }
-
-  return (
+      <button
+        onClick={() => {
+          logout(); // ✅ 중앙 관리된 logout 함수 사용
+          setUser(null); // 로컬 상태 초기화
+          alert("카카오 로그아웃 되었습니다.");
+        }}
+        className="bg-gray-300 hover:bg-gray-400 text-black px-2 py-1 rounded text-xs ml-2"
+      >
+        로그아웃
+      </button>
+    </div>
+  ) : (
     <button
       onClick={handleKakaoLogin}
       className="bg-yellow-300 hover:bg-yellow-400 text-black px-4 py-2 rounded text-sm cursor-pointer"
@@ -148,4 +158,3 @@ export default function KakaoAuthButton() {
     </button>
   );
 }
-

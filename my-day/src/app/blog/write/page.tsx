@@ -5,28 +5,77 @@ import {
   collection,
   addDoc,
   serverTimestamp,
+  doc,
+  getDoc,
 } from "firebase/firestore";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
+
+interface KakaoUser {
+  uid: string;
+  email: string;
+  name?: string;
+  photoURL?: string;
+  displayName?: string;
+}
 
 export default function WritePage() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [user] = useAuthState(auth);
+  const [kakaoUser, setKakaoUser] = useState<KakaoUser | null>(null);
+  const [displayName, setDisplayName] = useState("이름 없음");
   const router = useRouter();
 
-  const ADMIN_EMAIL = "mirrol33@gmail.com";
+  // 1. 로컬스토리지에서 kakaoUser 불러오기
+  useEffect(() => {
+    const storedUser = localStorage.getItem("kakaoUser");
+    if (storedUser) {
+      setKakaoUser(JSON.parse(storedUser));
+    }
+  }, []);
 
+  // 2. 현재 로그인된 사용자 정보 통합
+  const currentUser = user
+    ? {
+        uid: user.uid,
+        email: user.email ?? "",
+        photoURL: user.photoURL ?? "",
+        name: user.displayName ?? "",
+      }
+    : kakaoUser;
+
+  // 3. Firestore에서 사용자 이름 가져오기
+  useEffect(() => {
+    const fetchUserName = async () => {
+      if (!currentUser?.uid) return;
+
+      try {
+        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setDisplayName(userData.name || currentUser.name || "이름 없음");
+        } else {
+          setDisplayName(currentUser.name || "이름 없음");
+        }
+      } catch (error) {
+        console.error("이름 불러오기 실패:", error);
+        setDisplayName(currentUser?.name || "이름 없음");
+      }
+    };
+
+    fetchUserName();
+  }, [currentUser?.uid]);
+
+  // 4. 관리자 이메일 리스트
+  const ADMIN_EMAIL = ["mirrol33@gmail.com", "mirrol@kakao.com"];
+
+  // 5. 글 작성 핸들러
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!user) {
-      alert("로그인이 필요합니다.");
-      return;
-    }
-
-    if (user.email !== ADMIN_EMAIL) {
+    if (!currentUser || !ADMIN_EMAIL.includes(currentUser.email)) {
       alert("관리자만 글을 작성할 수 있습니다.");
       return;
     }
@@ -38,21 +87,22 @@ export default function WritePage() {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         author: {
-          uid: user.uid,
-          email: user.email,
-          photoURL: user.photoURL,
-          name: user.displayName,
+          uid: currentUser.uid,
+          email: currentUser.email,
+          photoURL: currentUser.photoURL ?? "",
+          name: displayName,
         },
       });
 
       alert("게시글이 등록되었습니다.");
-      router.push("/"); // 메인 페이지로 이동
+      router.push("/");
     } catch (error) {
       console.error("❌ 글쓰기 오류:", error);
       alert("글쓰기 실패");
     }
   };
 
+  // 6. UI
   return (
     <div className="max-w-2xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4 text-center">새 글 작성</h1>

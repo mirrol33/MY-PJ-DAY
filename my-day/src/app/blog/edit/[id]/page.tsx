@@ -1,4 +1,3 @@
-// app/blog/edit/[id]/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -11,6 +10,7 @@ export default function EditPage() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(true);
+  const [canEdit, setCanEdit] = useState(false);
   const [user] = useAuthState(auth);
   const router = useRouter();
   const params = useParams();
@@ -28,6 +28,17 @@ export default function EditPage() {
           const data = docSnap.data();
           setTitle(data.title || "");
           setContent(data.content || "");
+
+          const postAuthorUid = data.author.uid;
+          const kakaoUser = JSON.parse(localStorage.getItem("kakaoUser") || "{}");
+          const kakaoUid = kakaoUser?.uid;
+
+          // 권한 확인: 구글 로그인 또는 카카오 로그인 사용자
+          if (user?.uid === postAuthorUid || kakaoUid === postAuthorUid) {
+            setCanEdit(true);
+          } else {
+            setCanEdit(false);
+          }
         } else {
           alert("게시글을 찾을 수 없습니다.");
           router.push("/");
@@ -42,13 +53,13 @@ export default function EditPage() {
     };
 
     fetchPost();
-  }, [postId, router]);
+  }, [postId, user, router]);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!user) {
-      alert("로그인이 필요합니다.");
+    if (!canEdit) {
+      alert("수정 권한이 없습니다.");
       return;
     }
 
@@ -69,6 +80,7 @@ export default function EditPage() {
   };
 
   if (loading) return <p className="p-6">로딩 중...</p>;
+  if (!canEdit) return <p className="p-6 text-red-600">수정 권한이 없습니다.</p>;
 
   return (
     <div className="max-w-2xl mx-auto p-6">

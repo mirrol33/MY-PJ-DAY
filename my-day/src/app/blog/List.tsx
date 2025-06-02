@@ -1,17 +1,23 @@
-// 카카오 로그인 완료 후 로그인 상태 활성화하기 찜목록과 글쓰기 기능 가능하게 하기기
-// app/blog/List.tsx
 "use client";
 
-import { db, auth } from "@/lib/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import {
+  collection,
+  getDocs,
+  doc,
+  setDoc,
+  deleteDoc,
+  query,
+  orderBy,
+} from "firebase/firestore";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
-// 좋아요 버튼 구현에 필요한 모듈
-import { doc, setDoc, deleteDoc } from "firebase/firestore";
 import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
-/* 타입 */
+// ✅ 로그인 상태는 AuthContext 에서만 관리됨
+// ✅ localStorage 나 kakaoUser 등 직접적인 접근 제거
+
 type Post = {
   id: string;
   title: string;
@@ -19,6 +25,7 @@ type Post = {
   createdAt: Date;
   updatedAt: Date;
   author: {
+    uid: string;
     email: string;
     photoURL: string;
     name: string;
@@ -26,12 +33,23 @@ type Post = {
 };
 
 export default function List() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [user] = useAuthState(auth);
+  const { user } = useAuth(); // ✅ 로그인 상태는 useAuth() 에서만 가져옴
+  const userId = user?.uid;
 
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+  const [currentPage, setCurrentPage] = useState(1);
+  const PageSize = 5;
+  const pageGroupSize = 3;
+
+  // ✅ 게시글 불러오기
   useEffect(() => {
     const fetchPosts = async () => {
-      const querySnapshot = await getDocs(collection(db, "posts"));
+      const postQuery = query(
+        collection(db, "posts"),
+        orderBy("createdAt", "desc")
+      );
+      const querySnapshot = await getDocs(postQuery);
       const postData = querySnapshot.docs.map((doc) => {
         const data = doc.data();
         return {
@@ -46,105 +64,73 @@ export default function List() {
     fetchPosts();
   }, []);
 
-  /* 페이지네이션을 위한 상태변수 추가 */
-  const [currentPage, setCurrentPage] = useState(1); // 페이지수
-  const [pageCount, setPageCount] = useState(0); // 현재 페이지번호
-  const PageSize = 5; // 한 페이지에 출력하는 게시글 수
+  // ✅ 찜한 글 불러오기
+  useEffect(() => {
+    if (!userId) return;
+    const fetchLikes = async () => {
+      const snapshot = await getDocs(collection(db, "likes"));
+      const likes = snapshot.docs
+        .filter((doc) => doc.data().userId === userId)
+        .map((doc) => doc.data().postId);
+      setLikedPosts(new Set(likes));
+    };
+    fetchLikes();
+  }, [userId]);
 
-  const lastPost = currentPage * PageSize;
-  const firstPost = lastPost - PageSize;
-  const currentPosts = posts.slice(firstPost, lastPost);
+  // ✅ 찜 토글
+  const toggleLike = async (postId: string) => {
+    if (!userId) return alert("로그인이 필요합니다.");
+    const likeId = `${userId}_${postId}`;
+    const likeRef = doc(db, "likes", likeId);
+    const updatedLikes = new Set(likedPosts);
 
-  const pageGroupSize = 3; // 한번에 보여줄 페이지 번호 개수
+    if (likedPosts.has(postId)) {
+      await deleteDoc(likeRef);
+      updatedLikes.delete(postId);
+    } else {
+      await setDoc(likeRef, { userId, postId, createdAt: new Date() });
+      updatedLikes.add(postId);
+    }
+    setLikedPosts(updatedLikes);
+  };
+
+  // ✅ 페이지 계산
+  const pageCount = useMemo(() => Math.ceil(posts.length / PageSize), [posts]);
+  const currentPosts = useMemo(
+    () => posts.slice((currentPage - 1) * PageSize, currentPage * PageSize),
+    [posts, currentPage]
+  );
+
   const startPage =
     Math.floor((currentPage - 1) / pageGroupSize) * pageGroupSize + 1;
   const endPage = Math.min(startPage + pageGroupSize - 1, pageCount);
-
-  useEffect(() => {
-    setPageCount(Math.ceil(posts.length / PageSize));
-  }, [posts]);
-
-  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set()); // 좋아요 추가/삭제 상태 확인
-
-  useEffect(() => {
-    const fetchLikedPosts = async () => {
-      if (!user) return;
-      const snapshot = await getDocs(collection(db, "likes"));
-      const userLikes = snapshot.docs
-        .filter((doc) => doc.data().userId === user.uid)
-        .map((doc) => doc.data().postId);
-      setLikedPosts(new Set(userLikes));
-    };
-    fetchLikedPosts();
-  }, [user]);
-
-  const toggleLike = async (postId: string) => {
-    if (!user) {
-      alert("로그인이 필요합니다.");
-      return;
-    }
-
-    const likeId = `${user.uid}_${postId}`;
-    const likeRef = doc(db, "likes", likeId);
-
-    const liked = likedPosts.has(postId);
-
-    if (liked) {
-      await deleteDoc(likeRef);
-      setLikedPosts((prev) => {
-        const updated = new Set(prev);
-        updated.delete(postId);
-        return updated;
-      });
-    } else {
-      await setDoc(likeRef, {
-        userId: user.uid,
-        postId,
-        createdAt: new Date(),
-      });
-      setLikedPosts((prev) => new Set(prev).add(postId));
-    }
-  };
 
   return (
     <div className="max-w-4xl mx-auto py-12 px-6">
       <h1 className="text-3xl font-bold mb-6 text-center">전체 게시글 목록</h1>
 
+      {/* 상단 버튼 */}
       <div className="flex justify-end gap-2 mb-6">
-        {user ? (
-          <>
-            <Link
-              href="/blog/likes"
-              className="inline-block bg-yellow-400 px-3 py-2 rounded hover:bg-yellow-500">
-              찜 목록
-            </Link>
-            <Link
-              href="/blog/write"
-              className="inline-block bg-green-600 text-white px-3 py-2 rounded hover:bg-green-800">
-              글쓰기
-            </Link>
-          </>
-        ) : (
-          <>
-            <Link
-              href="/blog/likes"
-              className="inline-block bg-yellow-400 px-3 py-2 rounded hover:bg-yellow-500">
-              찜 목록
-            </Link>
-            <button
-              disabled
-              className="inline-block bg-gray-400 text-white px-3 py-2 rounded"
-              title="로그인 후 글쓰기가 가능합니다">
-              글쓰기 (구글 로그인 필요!)
-            </button>
-          </>
-        )}
+        <Link
+          href="/blog/likes"
+          className="bg-yellow-400 px-3 py-2 rounded hover:bg-yellow-500"
+        >
+          찜 목록
+        </Link>
+
+        <Link
+          href="/blog/write"
+          className="bg-green-600 text-white px-3 py-2 rounded hover:bg-green-800"
+        >
+          글쓰기
+        </Link>
       </div>
 
+      {/* 게시글 목록 */}
       <ul className="space-y-6">
         {currentPosts.map((post) => (
-          <li key={post.id} className="border-1 border-gray-300 p-4 rounded">
-            <div className="flex items-center mb-3 gap-3">
+          <li key={post.id} className="border p-4 rounded">
+            <div className="flex items-center gap-3 mb-2">
               <Image
                 src={post.author?.photoURL || "/default-avatar.png"}
                 alt="프로필"
@@ -153,135 +139,102 @@ export default function List() {
                 className="rounded-full"
                 unoptimized
               />
-
               <span className="text-sm text-gray-700">
                 {post.author?.name || "익명"} ({post.author?.email})
               </span>
             </div>
 
             <Link href={`/blog/read/${post.id}`}>
-              <h2 className="text-lg">
+              <h2 className="text-lg font-medium">
                 {post.title.length > 40
                   ? `${post.title.slice(0, 40)}...`
                   : post.title}
               </h2>
-              <p className="text-gray-600 mb-2 text-sm">
+              <p className="text-sm text-gray-600">
                 {post.content.length > 80
                   ? `${post.content.slice(0, 60)}...`
                   : post.content}
               </p>
             </Link>
-            {/* 작성일 추가 */}
-            <p className="text-gray-400 mt-2 text-xs">
-              작성일: {post.createdAt.toLocaleString("ko-KR")}
-            </p>
-            {/* 수정일 추가 */}
-            <p className="text-gray-400 mb-2 text-xs">
-              수정일: {post.updatedAt.toLocaleString("ko-KR")}
-            </p>
-            <div className="mt-4">
+
+            <div className="text-xs text-gray-400 mt-1">
+              <p>작성일: {post.createdAt.toLocaleString("ko-KR")}</p>
+              <p>수정일: {post.updatedAt.toLocaleString("ko-KR")}</p>
+            </div>
+
+            <div className="mt-3 flex gap-2">
               <Link
                 href={`/blog/read/${post.id}`}
-                className="inline-block bg-gray-100 hover:bg-gray-300 px-2 py-1 rounded text-xs">
+                className="bg-gray-100 hover:bg-gray-300 px-2 py-1 rounded text-xs"
+              >
                 상세보기
               </Link>
               <button
                 onClick={() => toggleLike(post.id)}
-                className={`ml-2 px-2 py-1 text-xs rounded cursor-pointer ${
+                className={`px-2 py-1 text-xs rounded ${
                   likedPosts.has(post.id)
                     ? "bg-yellow-300 text-black"
                     : "bg-gray-100 text-gray-500"
-                }`}>
+                }`}
+              >
                 {likedPosts.has(post.id) ? "★ 찜삭제" : "☆ 찜하기"}
               </button>
             </div>
           </li>
         ))}
       </ul>
-      {/* 페이지네이션 출력 */}
-      <div className="flex justify-center gap-2 mt-6">
-        {/* 처음 버튼 */}
-        <button
-          onClick={() => setCurrentPage(1)}
-          disabled={currentPage === 1}
-          className={`px-2 py-1 rounded text-xs ${
-            currentPage === 1
-              ? "bg-gray-200 text-gray-400"
-              : "bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"
-          }`}>
-          처음
-        </button>
 
-        {/* 이전 버튼 */}
-        <button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-          className={`px-2 py-1 rounded text-xs ${
-            currentPage === 1
-              ? "bg-gray-200 text-gray-400"
-              : "bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"
-          }`}>
-          이전
-        </button>
-        {/* 이전 그룹 ... */}
-        {startPage > 1 && (
+      {/* 페이지네이션 */}
+      {pageCount > 1 && (
+        <nav className="flex justify-center mt-8 space-x-2">
           <button
-            onClick={() => setCurrentPage(startPage - 1)}
-            className="px-2 py-1 rounded text-xs bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer">
-            ...
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+          >
+            &laquo;
           </button>
-        )}
-
-        {/* 페이지 번호들 (최대 3개씩) */}
-        {Array.from(
-          { length: endPage - startPage + 1 },
-          (_, i) => startPage + i
-        ).map((page) => (
           <button
-            key={page}
-            onClick={() => setCurrentPage(page)}
-            className={`px-2 py-1 rounded text-xs cursor-pointer ${
-              currentPage === page
-                ? "bg-gray-500 text-white"
-                : "bg-gray-200 text-gray-700"
-            }`}>
-            {page}
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            &lt;
           </button>
-        ))}
-        {/* 다음 그룹 ... */}
-        {endPage < pageCount && (
+          {startPage > 1 && (
+            <button onClick={() => setCurrentPage(startPage - 1)}>...</button>
+          )}
+          {Array.from(
+            { length: endPage - startPage + 1 },
+            (_, i) => startPage + i
+          ).map((page) => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`px-3 py-1 rounded border ${
+                currentPage === page
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "border-gray-300 hover:bg-gray-200"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+          {endPage < pageCount && (
+            <button onClick={() => setCurrentPage(endPage + 1)}>...</button>
+          )}
           <button
-            onClick={() => setCurrentPage(endPage + 1)}
-            className="px-3 py-1 rounded text-xs bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer">
-            ...
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={currentPage === pageCount}
+          >
+            &gt;
           </button>
-        )}
-        {/* 다음 버튼 */}
-        <button
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, pageCount))
-          }
-          disabled={currentPage === pageCount}
-          className={`px-2 py-1 rounded text-xs ${
-            currentPage === pageCount
-              ? "bg-gray-200 text-gray-400"
-              : "bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"
-          }`}>
-          다음
-        </button>
-        {/* 마지막 버튼 */}
-        <button
-          onClick={() => setCurrentPage(pageCount)}
-          disabled={currentPage === pageCount}
-          className={`px-2 py-1 rounded text-xs ${
-            currentPage === pageCount
-              ? "bg-gray-200 text-gray-400"
-              : "bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"
-          }
-        `}>
-          마지막
-        </button>
-      </div>
+          <button
+            onClick={() => setCurrentPage(pageCount)}
+            disabled={currentPage === pageCount}
+          >
+            &raquo;
+          </button>
+        </nav>
+      )}
     </div>
   );
 }

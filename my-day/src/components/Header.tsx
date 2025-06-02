@@ -7,7 +7,7 @@ import KakaoAuthButton from './KakaoAuthButton'
 import { useAuth } from '@/context/AuthContext'
 
 export default function Header() {
-  const { loginType } = useAuth()
+  const {loginType } = useAuth()
 
   return (
     <header className="bg-gray-600">
