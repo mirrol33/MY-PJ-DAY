@@ -1,3 +1,4 @@
+// types/kakao.d.ts
 export {};
 
 declare global {
@@ -17,7 +18,7 @@ declare global {
       API: {
         request: (options: {
           url: string;
-          success?: (res: KakaoUserResponse) => void;  // 변경: any → KakaoUserResponse
+          success?: (res: KakaoUserResponse) => void;
           fail?: (error: unknown) => void;
         }) => void;
       };

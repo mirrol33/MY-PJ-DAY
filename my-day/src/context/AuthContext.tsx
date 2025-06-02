@@ -23,17 +23,6 @@ interface KakaoUser {
   photoURL: string
 }
 
-// Kakao API 응답 타입 (types/kakao.ts에서 전역 선언됨 가정)
-interface KakaoUserResponse {
-  kakao_account: {
-    email: string
-    profile: {
-      nickname: string
-      profile_image_url: string
-    }
-  }
-}
-
 // Context에서 사용할 타입
 interface AuthContextProps {
   user: User | KakaoUser | null
@@ -113,7 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       window.Kakao.API.request({
         url: '/v2/user/me',
-        success: (res: KakaoUserResponse) => {
+        success: (res) => {
           const kakaoUser: KakaoUser = {
             email: res.kakao_account.email,
             name: res.kakao_account.profile.nickname,
@@ -168,7 +157,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }}
         strategy="afterInteractive"
-      ></Script>
+      />
 
       <AuthContext.Provider
         value={{ user, loginType, setLoginType, setUser, logout, loading }}
