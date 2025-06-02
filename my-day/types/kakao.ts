@@ -17,10 +17,21 @@ declare global {
       API: {
         request: (options: {
           url: string;
-          success?: (res: any) => void;
+          success?: (res: KakaoUserResponse) => void;  // 변경: any → KakaoUserResponse
           fail?: (error: unknown) => void;
         }) => void;
       };
     };
   }
+}
+
+// Kakao 사용자 정보 API 응답 타입 정의
+interface KakaoUserResponse {
+  kakao_account: {
+    email: string;
+    profile: {
+      nickname: string;
+      profile_image_url: string;
+    };
+  };
 }

@@ -13,16 +13,26 @@ interface KakaoProfile {
   photoURL: string;
 }
 
+interface KakaoAPIResponse {
+  id?: number | string;
+  kakao_account: {
+    email: string;
+    profile: {
+      nickname: string;
+      profile_image_url: string;
+    };
+  };
+}
+
 export default function KakaoAuthButton() {
   const [user, setUser] = useState<KakaoProfile | null>(null);
   const {
     setLoginType,
     setUser: setUserState,
-    logout, // ✅ AuthContext의 logout 함수 가져오기
+    logout,
   } = useAuth();
 
   useEffect(() => {
-    // ✅ 로컬스토리지에서 사용자 정보 복원
     const savedUser = localStorage.getItem("kakaoUser");
     if (savedUser) {
       try {
@@ -36,21 +46,22 @@ export default function KakaoAuthButton() {
       }
     }
 
-    // ✅ Kakao SDK 로드 및 초기화
-    if (!window.Kakao && typeof window !== "undefined") {
-      const script = document.createElement("script");
-      script.src = "https://developers.kakao.com/sdk/js/kakao.js";
-      script.async = true;
-      script.onload = () => {
-        if (window.Kakao && !window.Kakao.isInitialized()) {
+    if (typeof window !== "undefined") {
+      if (!window.Kakao) {
+        const script = document.createElement("script");
+        script.src = "https://developers.kakao.com/sdk/js/kakao.js";
+        script.async = true;
+        script.onload = () => {
+          if (window.Kakao && !window.Kakao.isInitialized()) {
+            window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_JS_KEY);
+            console.log("✅ Kakao SDK initialized");
+          }
+        };
+        document.head.appendChild(script);
+      } else {
+        if (!window.Kakao.isInitialized()) {
           window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_JS_KEY);
-          console.log("✅ Kakao SDK initialized");
         }
-      };
-      document.head.appendChild(script);
-    } else {
-      if (!window.Kakao.isInitialized()) {
-        window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_JS_KEY);
       }
     }
   }, []);
@@ -77,7 +88,13 @@ export default function KakaoAuthButton() {
 
         window.Kakao.API.request({
           url: "/v2/user/me",
-          success: async function (res) {
+          success: async function (res: KakaoAPIResponse) {
+            if (!res.id) {
+              alert("사용자 ID를 가져오는데 실패했습니다.");
+              console.error("❌ Kakao API 응답에 id가 없음:", res);
+              return;
+            }
+
             const kakaoUid = res.id.toString();
             const profile: KakaoProfile = {
               uid: kakaoUid,
@@ -86,21 +103,25 @@ export default function KakaoAuthButton() {
               photoURL: res.kakao_account.profile.profile_image_url,
             };
 
-            const userRef = doc(db, "users", kakaoUid);
-            const docSnap = await getDoc(userRef);
+            try {
+              const userRef = doc(db, "users", kakaoUid);
+              const docSnap = await getDoc(userRef);
 
-            if (!docSnap.exists()) {
-              await setDoc(userRef, {
-                uid: profile.uid,
-                name: profile.name,
-                email: profile.email,
-                photoURL: profile.photoURL,
-                createdAt: serverTimestamp(),
-                role: "user",
-              });
-              console.log("✅ 카카오 신규 사용자 Firestore에 저장 완료");
-            } else {
-              console.log("✅ 기존 카카오 사용자 로그인 완료");
+              if (!docSnap.exists()) {
+                await setDoc(userRef, {
+                  uid: profile.uid,
+                  name: profile.name,
+                  email: profile.email,
+                  photoURL: profile.photoURL,
+                  createdAt: serverTimestamp(),
+                  role: "user",
+                });
+                console.log("✅ 카카오 신규 사용자 Firestore에 저장 완료");
+              } else {
+                console.log("✅ 기존 카카오 사용자 로그인 완료");
+              }
+            } catch (error) {
+              console.error("❌ Firestore 사용자 저장 오류:", error);
             }
 
             setUser(profile);
@@ -114,6 +135,7 @@ export default function KakaoAuthButton() {
           },
           fail: function (error: unknown) {
             console.error("❌ 사용자 정보 요청 실패", error);
+            alert("사용자 정보 요청에 실패했습니다.");
           },
         });
       },
@@ -140,8 +162,8 @@ export default function KakaoAuthButton() {
       </div>
       <button
         onClick={() => {
-          logout(); // ✅ 중앙 관리된 logout 함수 사용
-          setUser(null); // 로컬 상태 초기화
+          logout();
+          setUser(null);
           alert("카카오 로그아웃 되었습니다.");
         }}
         className="bg-gray-300 hover:bg-gray-400 text-black px-2 py-1 rounded text-xs ml-2"
