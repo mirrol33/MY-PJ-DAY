@@ -11,13 +11,13 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
+import Image from "next/image";
 
 interface KakaoUser {
   uid: string;
   email: string;
   name?: string;
   photoURL?: string;
-  displayName?: string;
 }
 
 export default function WritePage() {
@@ -25,10 +25,13 @@ export default function WritePage() {
   const [content, setContent] = useState("");
   const [user] = useAuthState(auth);
   const [kakaoUser, setKakaoUser] = useState<KakaoUser | null>(null);
-  const [displayName, setDisplayName] = useState("이름 없음");
+  const [userData, setUserData] = useState<{ name: string; photoURL: string }>({
+    name: "이름 없음",
+    photoURL: "",
+  });
   const router = useRouter();
 
-  // 1. 로컬스토리지에서 kakaoUser 불러오기
+  // ✅ 로컬스토리지에서 kakaoUser 불러오기
   useEffect(() => {
     const storedUser = localStorage.getItem("kakaoUser");
     if (storedUser) {
@@ -36,42 +39,48 @@ export default function WritePage() {
     }
   }, []);
 
-  // 2. 현재 로그인된 사용자 정보 통합
+  // ✅ 현재 로그인된 사용자 통합
   const currentUser = user
     ? {
         uid: user.uid,
         email: user.email ?? "",
-        photoURL: user.photoURL ?? "",
-        name: user.displayName ?? "",
       }
     : kakaoUser;
 
-  // 3. Firestore에서 사용자 이름 가져오기
+  // ✅ Firestore에서 사용자 정보(name, photoURL) 가져오기
   useEffect(() => {
-    const fetchUserName = async () => {
+    const fetchUserData = async () => {
       if (!currentUser?.uid) return;
 
       try {
         const userDoc = await getDoc(doc(db, "users", currentUser.uid));
         if (userDoc.exists()) {
-          const userData = userDoc.data();
-          setDisplayName(userData.name || currentUser.name || "이름 없음");
+          const data = userDoc.data();
+          setUserData({
+            name: data.name || "이름 없음",
+            photoURL: data.photoURL || "",
+          });
         } else {
-          setDisplayName(currentUser.name || "이름 없음");
+          setUserData({
+            name: "이름 없음",
+            photoURL: "",
+          });
         }
       } catch (error) {
-        console.error("이름 불러오기 실패:", error);
-        setDisplayName(currentUser?.name || "이름 없음");
+        console.error("❌ 사용자 정보 불러오기 실패:", error);
+        setUserData({
+          name: "이름 없음",
+          photoURL: "",
+        });
       }
     };
 
-    fetchUserName();
+    fetchUserData();
   }, [currentUser?.uid]);
 
-  // 4. 관리자 이메일 리스트
   const ADMIN_EMAIL = ["mirrol33@gmail.com", "mirrol@kakao.com"];
 
-  // 5. 글 작성 핸들러
+  // ✅ 글 작성 핸들러
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -89,8 +98,8 @@ export default function WritePage() {
         author: {
           uid: currentUser.uid,
           email: currentUser.email,
-          photoURL: currentUser.photoURL ?? "",
-          name: displayName,
+          name: userData.name,
+          photoURL: userData.photoURL,
         },
       });
 
@@ -102,7 +111,7 @@ export default function WritePage() {
     }
   };
 
-  // 6. UI
+  // ✅ UI
   return (
     <div className="max-w-2xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4 text-center">새 글 작성</h1>
@@ -123,18 +132,26 @@ export default function WritePage() {
           rows={10}
           className="w-full p-2 border rounded"
         />
+        <div className="flex items-center gap-2">
+          <Image
+            src={userData.photoURL || "/default-profile.png"}
+            alt="작성자 프로필 이미지"
+            width={40}
+            height={40}
+            className="rounded-full object-cover"
+          />
+          <span className="text-sm">{userData.name}</span>
+        </div>
         <div className="flex justify-between">
           <button
             onClick={() => router.push("/")}
             type="button"
-            className="mt-6 bg-gray-600 text-white px-3 py-2 rounded hover:bg-gray-800 text-sm cursor-pointer"
-          >
+            className="mt-6 bg-gray-600 text-white px-3 py-2 rounded hover:bg-gray-800 text-sm cursor-pointer">
             목록으로
           </button>
           <button
             type="submit"
-            className="mt-6 bg-green-600 text-white px-3 py-2 rounded hover:bg-green-800 text-sm cursor-pointer"
-          >
+            className="mt-6 bg-green-600 text-white px-3 py-2 rounded hover:bg-green-800 text-sm cursor-pointer">
             작성하기(관리자 권한)
           </button>
         </div>
