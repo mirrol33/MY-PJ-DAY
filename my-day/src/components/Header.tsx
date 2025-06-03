@@ -18,7 +18,7 @@ export default function Header() {
         <div className="p-4 md:p-0 flex items-center justify-center gap-2">
           {loginType !== "kakao" && <GoogleAuthButton />}
           {loginType !== "google" && <KakaoAuthButton />}
-          {loginType && (
+          {loginType !== "none" && (
             <Link
               href={"/blog/mypage"}
               className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-2 py-1 rounded text-xs">

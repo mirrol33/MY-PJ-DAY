@@ -168,7 +168,7 @@ export default function LikesPage() {
       <div className="mt-8 text-center">
         <Link
           href="/"
-          className="inline-block bg-gray-200 hover:bg-gray-300 text-sm px-4 py-2 rounded"
+          className="inline-block bg-gray-200 hover:bg-gray-300 text-sm text-gray-800 px-4 py-2 rounded"
         >
           ← 메인 페이지로 이동
         </Link>

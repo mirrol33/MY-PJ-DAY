@@ -11,6 +11,7 @@ import {
 import { onAuthStateChanged, User, signOut } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 import Script from 'next/script'
+import { useRouter } from "next/navigation"
 
 // 로그인 타입 정의
 type LoginType = 'none' | 'google' | 'kakao'
@@ -48,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | KakaoUser | null>(null)
   const [loginType, setLoginTypeState] = useState<LoginType>('none')
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
   const setLoginType = (type: LoginType) => {
     setLoginTypeState(type)
@@ -68,6 +70,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       localStorage.removeItem('loginType')
       localStorage.removeItem('kakaoUser')
+      // 메인페이지로 이동
+      router.push("/");
     }
 
     setUser(null)
