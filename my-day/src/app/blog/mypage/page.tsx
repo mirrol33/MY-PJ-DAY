@@ -32,8 +32,8 @@ export default function MyPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 100 * 1024 * 1024) {
-      alert('100MB 이하의 이미지만 업로드할 수 있습니다.');
+    if (file.size > 10 * 1024 * 1024) {
+      alert('10MB 이하의 이미지만 업로드할 수 있습니다.');
       return;
     }
 
