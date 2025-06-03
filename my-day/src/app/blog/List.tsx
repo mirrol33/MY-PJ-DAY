@@ -189,19 +189,19 @@ export default function List() {
           <button
             onClick={() => setCurrentPage(1)}
             disabled={currentPage === 1}
-            className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-200"
+            className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-200 cursor-pointer"
           >
             ≪
           </button>
           <button
             onClick={() => setCurrentPage(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-200"
+            className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-200 cursor-pointer"
           >
             ＜
           </button>
           {startPage > 1 && (
-            <button onClick={() => setCurrentPage(startPage - 1)}>...</button>
+            <button onClick={() => setCurrentPage(startPage - 1)} className="cursor-pointer">...</button>
           )}
           {Array.from(
             { length: endPage - startPage + 1 },
@@ -210,7 +210,7 @@ export default function List() {
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`px-2 py-1 rounded border ${
+              className={`px-2 py-1 rounded border cursor-pointer ${
                 currentPage === page
                   ? "bg-gray-400 text-white border-gray-400"
                   : "border-gray-300 hover:bg-gray-200"
@@ -220,19 +220,19 @@ export default function List() {
             </button>
           ))}
           {endPage < pageCount && (
-            <button onClick={() => setCurrentPage(endPage + 1)}>...</button>
+            <button onClick={() => setCurrentPage(endPage + 1)} className="cursor-pointer">...</button>
           )}
           <button
             onClick={() => setCurrentPage(currentPage + 1)}
             disabled={currentPage === pageCount}
-            className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-200"
+            className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-200 cursor-pointer"
           >
             ＞
           </button>
           <button
             onClick={() => setCurrentPage(pageCount)}
             disabled={currentPage === pageCount}
-            className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-200"
+            className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-200 cursor-pointer"
           >
             ≫
           </button>
