@@ -74,7 +74,7 @@ export default function MyPage() {
           type="text"
           value={user?.email || ''}
           disabled
-          className="w-full border p-2 rounded bg-gray-100"
+          className="w-full border p-2 rounded bg-gray-100 text-gray-400"
         />
       </div>
       <div className="mb-4">
