@@ -166,7 +166,7 @@ export default function KakaoAuthButton() {
           setUser(null);
           alert("카카오 로그아웃 되었습니다.");
         }}
-        className="bg-gray-300 hover:bg-gray-400 text-black px-2 py-1 rounded text-xs ml-2"
+        className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-2 py-1 rounded text-xs ml-2"
       >
         로그아웃
       </button>

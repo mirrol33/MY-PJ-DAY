@@ -110,14 +110,14 @@ export default function List() {
       <div className="flex justify-end gap-2 mb-6">
         <Link
           href="/blog/likes"
-          className="bg-gray-200 px-3 py-2 rounded hover:bg-gray-300"
+          className="bg-gray-200 px-3 py-2 rounded hover:bg-gray-300 text-gray-800"
         >
           찜 목록
         </Link>
 
         <Link
           href="/blog/write"
-          className="bg-gray-200 px-3 py-2 rounded hover:bg-gray-300"
+          className="bg-gray-200 px-3 py-2 rounded hover:bg-gray-300 text-gray-800"
         >
           글쓰기
         </Link>
@@ -162,7 +162,7 @@ export default function List() {
             <div className="mt-3 flex gap-2">
               <Link
                 href={`/blog/read/${post.id}`}
-                className="bg-gray-100 hover:bg-gray-300 px-2 py-1 rounded text-xs"
+                className="bg-gray-100 hover:bg-gray-300 px-2 py-1 rounded text-xs text-gray-800"
               >
                 상세보기
               </Link>
@@ -171,8 +171,8 @@ export default function List() {
                 onClick={() => toggleLike(post.id)}
                 className={`px-2 py-1 text-xs rounded ${
                   likedPosts.has(post.id)
-                    ? "bg-yellow-300 text-black"
-                    : "bg-gray-100 text-gray-500"
+                    ? "bg-yellow-300 text-gray-800"
+                    : "bg-gray-100 text-gray-800"
                 }`}
               >
                 {likedPosts.has(post.id) ? "★ 찜삭제" : "☆ 찜하기"}
