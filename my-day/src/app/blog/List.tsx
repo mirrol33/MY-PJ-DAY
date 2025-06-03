@@ -15,9 +15,6 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 
-// ✅ 로그인 상태는 AuthContext 에서만 관리됨
-// ✅ localStorage 나 kakaoUser 등 직접적인 접근 제거
-
 type Post = {
   id: string;
   title: string;
@@ -33,7 +30,7 @@ type Post = {
 };
 
 export default function List() {
-  const { user } = useAuth(); // ✅ 로그인 상태는 useAuth() 에서만 가져옴
+  const { user } = useAuth();
   const userId = user?.uid;
 
   const [posts, setPosts] = useState<Post[]>([]);
@@ -113,14 +110,14 @@ export default function List() {
       <div className="flex justify-end gap-2 mb-6">
         <Link
           href="/blog/likes"
-          className="bg-yellow-400 px-3 py-2 rounded hover:bg-yellow-500"
+          className="bg-gray-200 px-3 py-2 rounded hover:bg-gray-300"
         >
           찜 목록
         </Link>
 
         <Link
           href="/blog/write"
-          className="bg-green-600 text-white px-3 py-2 rounded hover:bg-green-800"
+          className="bg-gray-200 px-3 py-2 rounded hover:bg-gray-300"
         >
           글쓰기
         </Link>
@@ -129,7 +126,7 @@ export default function List() {
       {/* 게시글 목록 */}
       <ul className="space-y-6">
         {currentPosts.map((post) => (
-          <li key={post.id} className="border p-4 rounded">
+          <li key={post.id} className="border-1 border-gray-300 p-4 rounded shadow-sm">
             <div className="flex items-center gap-3 mb-2">
               <Image
                 src={post.author?.photoURL || "/default-avatar.png"}
@@ -169,6 +166,7 @@ export default function List() {
               >
                 상세보기
               </Link>
+              {user &&
               <button
                 onClick={() => toggleLike(post.id)}
                 className={`px-2 py-1 text-xs rounded ${
@@ -179,6 +177,7 @@ export default function List() {
               >
                 {likedPosts.has(post.id) ? "★ 찜삭제" : "☆ 찜하기"}
               </button>
+              }
             </div>
           </li>
         ))}
@@ -186,18 +185,20 @@ export default function List() {
 
       {/* 페이지네이션 */}
       {pageCount > 1 && (
-        <nav className="flex justify-center mt-8 space-x-2">
+        <nav className="flex justify-center mt-8 space-x-2 text-xs">
           <button
             onClick={() => setCurrentPage(1)}
             disabled={currentPage === 1}
+            className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-200"
           >
-            &laquo;
+            ≪
           </button>
           <button
             onClick={() => setCurrentPage(currentPage - 1)}
             disabled={currentPage === 1}
+            className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-200"
           >
-            &lt;
+            ＜
           </button>
           {startPage > 1 && (
             <button onClick={() => setCurrentPage(startPage - 1)}>...</button>
@@ -209,9 +210,9 @@ export default function List() {
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`px-3 py-1 rounded border ${
+              className={`px-2 py-1 rounded border ${
                 currentPage === page
-                  ? "bg-blue-600 text-white border-blue-600"
+                  ? "bg-gray-400 text-white border-gray-400"
                   : "border-gray-300 hover:bg-gray-200"
               }`}
             >
@@ -224,14 +225,16 @@ export default function List() {
           <button
             onClick={() => setCurrentPage(currentPage + 1)}
             disabled={currentPage === pageCount}
+            className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-200"
           >
-            &gt;
+            ＞
           </button>
           <button
             onClick={() => setCurrentPage(pageCount)}
             disabled={currentPage === pageCount}
+            className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-200"
           >
-            &raquo;
+            ≫
           </button>
         </nav>
       )}
