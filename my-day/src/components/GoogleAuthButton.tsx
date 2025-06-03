@@ -5,9 +5,11 @@ import { useAuth } from "@/context/AuthContext";
 import { auth, db } from "@/lib/firebase";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import { useRouter } from "next/navigation"
 
 export default function GoogleAuthButton() {
   const { user, setUser, setLoginType } = useAuth();
+  const router = useRouter()
 
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
@@ -28,12 +30,12 @@ export default function GoogleAuthButton() {
           createdAt: serverTimestamp(),
           role: "user",
         });
-        console.log("✅ 새로운 사용자 Firestore에 저장 완료");
+        console.log("새로운 사용자 Firestore에 저장 완료");
       } else {
-        console.log("✅ 기존 사용자 로그인 완료");
+        console.log("기존 사용자 로그인 완료");
       }
 
-      setUser(user); // ✅ 전역 상태에 사용자 정보 저장
+      setUser(user); // 전역 상태에 사용자 정보 저장
       setLoginType("google");
       alert(`환영합니다, ${user.displayName ?? "사용자"}님!`);
     } catch (error) {
@@ -45,9 +47,11 @@ export default function GoogleAuthButton() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      setUser(null); // ✅ 전역 상태 초기화
+      setUser(null); // 전역 상태 초기화
       setLoginType("none");
       alert("로그아웃 되었습니다.");
+      
+      router.push("/"); // 메인페이지로 이동
       localStorage.removeItem("kakaoUser");
       localStorage.removeItem("loginType");
     } catch (error) {
