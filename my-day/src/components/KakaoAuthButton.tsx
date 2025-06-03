@@ -149,11 +149,11 @@ export default function KakaoAuthButton() {
   return user ? (
     <div className="flex items-center gap-2 text-white">
       <Image
-        src={user.photoURL}
+        src={user.photoURL ?? "/default-avatar.png"}
         alt="프로필 이미지"
-        width={32}
-        height={32}
-        className="w-8 h-8 rounded-full"
+        width={40}
+        height={40}
+        className="rounded-full"
         unoptimized
       />
       <div className="text-sm text-white">
@@ -166,7 +166,7 @@ export default function KakaoAuthButton() {
           setUser(null);
           alert("카카오 로그아웃 되었습니다.");
         }}
-        className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-2 py-1 rounded text-xs ml-2"
+        className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-2 py-1 rounded text-xs ml-2 cursor-pointer"
       >
         로그아웃
       </button>

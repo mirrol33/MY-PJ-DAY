@@ -110,15 +110,12 @@ export default function List() {
       <div className="flex justify-end gap-2 mb-6">
         <Link
           href="/blog/likes"
-          className="bg-gray-200 px-3 py-2 rounded hover:bg-gray-300 text-gray-800"
-        >
+          className="bg-gray-200 px-3 py-2 rounded hover:bg-gray-300 text-gray-800">
           찜 목록
         </Link>
-
         <Link
           href="/blog/write"
-          className="bg-gray-200 px-3 py-2 rounded hover:bg-gray-300 text-gray-800"
-        >
+          className="bg-gray-200 px-3 py-2 rounded hover:bg-gray-300 text-gray-800">
           글쓰기
         </Link>
       </div>
@@ -126,7 +123,9 @@ export default function List() {
       {/* 게시글 목록 */}
       <ul className="space-y-6">
         {currentPosts.map((post) => (
-          <li key={post.id} className="border-1 border-gray-300 p-4 rounded shadow-sm">
+          <li
+            key={post.id}
+            className="border-1 border-gray-300 p-4 rounded shadow-sm">
             <div className="flex items-center gap-3 mb-2">
               <Image
                 src={post.author?.photoURL || "/default-avatar.png"}
@@ -162,22 +161,20 @@ export default function List() {
             <div className="mt-3 flex gap-2">
               <Link
                 href={`/blog/read/${post.id}`}
-                className="bg-gray-100 hover:bg-gray-300 px-2 py-1 rounded text-xs text-gray-800"
-              >
+                className="bg-gray-100 hover:bg-gray-300 px-2 py-1 rounded text-xs text-gray-800">
                 상세보기
               </Link>
-              {user &&
-              <button
-                onClick={() => toggleLike(post.id)}
-                className={`px-2 py-1 text-xs rounded ${
-                  likedPosts.has(post.id)
-                    ? "bg-yellow-300 text-gray-800"
-                    : "bg-gray-100 text-gray-800"
-                }`}
-              >
-                {likedPosts.has(post.id) ? "★ 찜삭제" : "☆ 찜하기"}
-              </button>
-              }
+              {user && (
+                <button
+                  onClick={() => toggleLike(post.id)}
+                  className={`px-2 py-1 text-xs rounded cursor-pointer ${
+                    likedPosts.has(post.id)
+                      ? "bg-yellow-300 text-gray-800"
+                      : "bg-gray-100 text-gray-800"
+                  }`}>
+                  {likedPosts.has(post.id) ? "★ 찜삭제" : "☆ 찜하기"}
+                </button>
+              )}
             </div>
           </li>
         ))}
@@ -189,19 +186,21 @@ export default function List() {
           <button
             onClick={() => setCurrentPage(1)}
             disabled={currentPage === 1}
-            className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-200 cursor-pointer"
-          >
+            className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-200 cursor-pointer">
             ≪
           </button>
           <button
             onClick={() => setCurrentPage(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-200 cursor-pointer"
-          >
+            className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-200 cursor-pointer">
             ＜
           </button>
           {startPage > 1 && (
-            <button onClick={() => setCurrentPage(startPage - 1)} className="cursor-pointer">...</button>
+            <button
+              onClick={() => setCurrentPage(startPage - 1)}
+              className="cursor-pointer">
+              ...
+            </button>
           )}
           {Array.from(
             { length: endPage - startPage + 1 },
@@ -214,26 +213,27 @@ export default function List() {
                 currentPage === page
                   ? "bg-gray-400 text-white border-gray-400"
                   : "border-gray-300 hover:bg-gray-200"
-              }`}
-            >
+              }`}>
               {page}
             </button>
           ))}
           {endPage < pageCount && (
-            <button onClick={() => setCurrentPage(endPage + 1)} className="cursor-pointer">...</button>
+            <button
+              onClick={() => setCurrentPage(endPage + 1)}
+              className="cursor-pointer">
+              ...
+            </button>
           )}
           <button
             onClick={() => setCurrentPage(currentPage + 1)}
             disabled={currentPage === pageCount}
-            className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-200 cursor-pointer"
-          >
+            className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-200 cursor-pointer">
             ＞
           </button>
           <button
             onClick={() => setCurrentPage(pageCount)}
             disabled={currentPage === pageCount}
-            className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-200 cursor-pointer"
-          >
+            className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-200 cursor-pointer">
             ≫
           </button>
         </nav>

@@ -118,7 +118,7 @@ export default function LikesPage() {
       ) : (
         <ul className="space-y-6">
           {likedPosts.map((post) => (
-            <li key={post.id} className="border-1 border-gray-300 p-4 rounded shadow-sm bg-gray-50">
+            <li key={post.id} className="border-1 border-gray-300 p-4 rounded shadow-sm">
               <div className="flex items-center mb-3 gap-3">
                 <Image
                   src={post.author.photoURL || "/default-avatar.png"}
@@ -132,28 +132,30 @@ export default function LikesPage() {
                   {post.author.name} ({post.author.email})
                 </span>
               </div>
-              <h2 className="font-semibold text-lg">{post.title}</h2>
-              <p className="text-gray-600 mb-2">
+              <h2 className="text-lg font-medium">{post.title}</h2>
+              <p className="text-sm text-gray-600">
                 {post.content.length > 80
                   ? `${post.content.slice(0, 80)}...`
                   : post.content}
               </p>
-              <p className="text-xs text-gray-400">
+              <div className="text-xs text-gray-400 mt-1">
+              <p>
                 작성일: {post.createdAt.toLocaleString("ko-KR")}
               </p>
-              <p className="text-xs text-gray-400 mb-2">
+              <p>
                 수정일: {post.updatedAt.toLocaleString("ko-KR")}
               </p>
+              </div>
               <div className="mt-2 flex gap-2">
                 <Link
                   href={`/blog/read/${post.id}`}
-                  className="inline-block bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm"
+                  className="inline-block bg-gray-200 text-gray-800 hover:bg-gray-300 px-3 py-1 rounded text-xs"
                 >
                   상세보기
                 </Link>
                 <button
                   onClick={() => handleDeleteLike(post.likeDocId)}
-                  className="px-2 py-1 text-xs rounded cursor-pointer bg-yellow-300 text-black"
+                  className="px-2 py-1 text-xs rounded cursor-pointer bg-yellow-300 text-gray-800"
                 >
                   ★ 찜삭제
                 </button>
