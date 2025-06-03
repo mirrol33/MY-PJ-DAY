@@ -66,7 +66,7 @@ export default function MyPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto m-20 p-4 border-1 border-gray-300 rounded shadow bg-white">
+    <div className="max-w-md mx-auto m-20 p-4 border-1 border-gray-300 rounded shadow">
       <h1 className="text-xl font-bold mb-4 text-center">회원정보 수정</h1>
       <div className="mb-4">
         <label className="block text-sm font-medium mb-1">이메일</label>
