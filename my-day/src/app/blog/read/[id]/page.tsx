@@ -93,7 +93,7 @@ export default function ReadPostPage({ params }: PostProps) {
       </div>
       <div className="flex items-center gap-3">
         <Image
-          src={post.author.photoURL || "/default-avatar.png"}
+          src={post.author.photoURL || "/default-profile.png"}
           alt="프로필"
           width={40}
           height={40}

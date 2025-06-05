@@ -128,7 +128,7 @@ export default function List() {
             className="border-1 border-gray-300 p-4 rounded shadow-sm">
             <div className="flex items-center gap-3 mb-2">
               <Image
-                src={post.author?.photoURL || "/default-avatar.png"}
+                src={post.author?.photoURL || "/default-profile.png"}
                 alt="프로필"
                 width={40}
                 height={40}

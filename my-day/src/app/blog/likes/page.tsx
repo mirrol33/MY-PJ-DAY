@@ -68,7 +68,7 @@ export default function LikesPage() {
             updatedAt: data.updatedAt?.toDate?.() || new Date(),
             author: {
               email: data.author?.email || "unknown",
-              photoURL: data.author?.photoURL || "/default-avatar.png",
+              photoURL: data.author?.photoURL || "/default-profile.png",
               name: data.author?.name || "익명",
             },
             likeDocId,
@@ -121,7 +121,7 @@ export default function LikesPage() {
             <li key={post.id} className="border-1 border-gray-300 p-4 rounded shadow-sm">
               <div className="flex items-center mb-3 gap-3">
                 <Image
-                  src={post.author.photoURL || "/default-avatar.png"}
+                  src={post.author.photoURL || "/default-profile.png"}
                   alt="프로필"
                   width={40}
                   height={40}

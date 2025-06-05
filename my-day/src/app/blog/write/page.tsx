@@ -26,7 +26,7 @@ export default function WritePage() {
   const [user] = useAuthState(auth);
   const [kakaoUser, setKakaoUser] = useState<KakaoUser | null>(null);
   const [userData, setUserData] = useState<{ name: string; photoURL: string }>({
-    name: "이름 없음",
+    name: "비회원",
     photoURL: "",
   });
   const router = useRouter();

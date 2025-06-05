@@ -96,42 +96,52 @@ export default function KakaoAuthButton() {
             }
 
             const kakaoUid = res.id.toString();
-            const profile: KakaoProfile = {
-              uid: kakaoUid,
-              name: res.kakao_account.profile.nickname,
-              email: res.kakao_account.email,
-              photoURL: res.kakao_account.profile.profile_image_url,
-            };
+            const userRef = doc(db, "users", kakaoUid);
+            let profile: KakaoProfile;
 
             try {
-              const userRef = doc(db, "users", kakaoUid);
               const docSnap = await getDoc(userRef);
 
               if (!docSnap.exists()) {
+                profile = {
+                  uid: kakaoUid,
+                  name: res.kakao_account.profile.nickname,
+                  email: res.kakao_account.email,
+                  photoURL: res.kakao_account.profile.profile_image_url,
+                };
+
                 await setDoc(userRef, {
-                  uid: profile.uid,
-                  name: profile.name,
-                  email: profile.email,
-                  photoURL: profile.photoURL,
+                  ...profile,
                   createdAt: serverTimestamp(),
                   role: "user",
                 });
+
                 console.log("✅ 카카오 신규 사용자 Firestore에 저장 완료");
               } else {
-                console.log("✅ 기존 카카오 사용자 로그인 완료");
+                const data = docSnap.data();
+                profile = {
+                  uid: data.uid,
+                  name: data.name,
+                  email: data.email,
+                  photoURL: data.photoURL,
+                };
+
+                console.log("✅ 기존 카카오 사용자 Firestore에서 정보 불러옴");
               }
+
+              // 상태 및 로컬스토리지 업데이트
+              setUser(profile);
+              setUserState(profile);
+              setLoginType("kakao");
+
+              localStorage.setItem("kakaoUser", JSON.stringify(profile));
+              localStorage.setItem("loginType", "kakao");
+
+              alert(`환영합니다, ${profile.name}님!`);
             } catch (error) {
-              console.error("❌ Firestore 사용자 저장 오류:", error);
+              console.error("❌ Firestore 사용자 정보 처리 오류:", error);
+              alert("사용자 정보 처리 중 오류가 발생했습니다.");
             }
-
-            setUser(profile);
-            setUserState(profile);
-            setLoginType("kakao");
-
-            localStorage.setItem("kakaoUser", JSON.stringify(profile));
-            localStorage.setItem("loginType", "kakao");
-
-            alert(`환영합니다, ${profile.name}님!`);
           },
           fail: function (error: unknown) {
             console.error("❌ 사용자 정보 요청 실패", error);
@@ -149,7 +159,7 @@ export default function KakaoAuthButton() {
   return user ? (
     <div className="flex items-center gap-2 text-white">
       <Image
-        src={user.photoURL ?? "/default-avatar.png"}
+        src={user.photoURL ?? "/default-profile.png"}
         alt="프로필 이미지"
         width={40}
         height={40}
